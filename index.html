@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Simulador Óptico Rayner vs. Competencia</title>
+  <title>Simulador Comparativo Rayner vs. Competencia</title>
   <style>
     :root { --rayner: #005eb8; --accent: #38bdf8; --dark: #090d16; --panel: #131b2e; --text: #f8fafc; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -12,17 +12,15 @@
     header h1 { font-size: 1.15rem; font-weight: 600; }
     header span { color: var(--accent); }
     .container { max-width: 1150px; width: 100%; margin: 0 auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
-    .sim-box { position: relative; width: 100%; aspect-ratio: 16/9; max-height: 520px; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; background: #0b1120; user-select: none; touch-action: none; }
+    .sim-box { position: relative; width: 100%; aspect-ratio: 16/9; max-height: 540px; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; background: #000; user-select: none; touch-action: none; }
     .layer { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .scene { width: 100%; height: 100%; transition: filter 0.3s ease; }
-    .scene svg { width: 100%; height: 100%; display: block; }
+    .layer img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter 0.3s ease; }
     #layer-rayner { clip-path: inset(0 50% 0 0); z-index: 2; }
     .halo { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; mix-blend-mode: screen;
       background:
-        radial-gradient(circle at 34% 62%, #fff 0%, rgba(255,240,190,.5) 2.5%, rgba(255,200,100,.1) 5%, rgba(255,230,170,.4) 6.5%, rgba(255,200,100,.08) 8.5%, rgba(255,220,150,.3) 10%, transparent 18%),
-        radial-gradient(circle at 44% 62%, #fff 0%, rgba(255,240,190,.5) 2.5%, rgba(255,200,100,.1) 5%, rgba(255,230,170,.4) 6.5%, rgba(255,200,100,.08) 8.5%, rgba(255,220,150,.3) 10%, transparent 18%),
-        radial-gradient(circle at 22% 28%, rgba(255,240,190,.7) 0%, rgba(255,210,130,.25) 4%, transparent 11%),
-        radial-gradient(circle at 78% 28%, rgba(255,240,190,.7) 0%, rgba(255,210,130,.25) 4%, transparent 11%);
+        radial-gradient(circle at 35% 58%, rgba(255,255,255,0.95) 0%, rgba(255,240,190,0.55) 3%, rgba(255,200,100,0.12) 6%, rgba(255,230,170,0.45) 8%, rgba(255,200,100,0.08) 10.5%, rgba(255,220,150,0.35) 12.5%, transparent 21%),
+        radial-gradient(circle at 65% 58%, rgba(255,255,255,0.95) 0%, rgba(255,240,190,0.55) 3%, rgba(255,200,100,0.12) 6%, rgba(255,230,170,0.45) 8%, rgba(255,200,100,0.08) 10.5%, rgba(255,220,150,0.35) 12.5%, transparent 21%),
+        radial-gradient(circle at 50% 35%, rgba(255,240,190,0.75) 0%, rgba(255,210,130,0.28) 5%, transparent 13%);
     }
     .badge { position: absolute; top: 14px; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; z-index: 4; backdrop-filter: blur(6px); }
     .badge-l { left: 14px; background: rgba(0,94,184,0.92); border: 1px solid var(--accent); }
@@ -50,8 +48,8 @@
   <div class="sim-box" id="box">
     <div class="badge badge-l" id="lbl-r">Rayner RayOne Galaxy</div>
     <div class="badge badge-r" id="lbl-c">Clareon PanOptix Pro</div>
-    <div class="layer"><div class="scene" id="sc-c"></div><div class="halo" id="hl-c"></div></div>
-    <div class="layer" id="layer-rayner"><div class="scene" id="sc-r"></div><div class="halo" id="hl-r"></div></div>
+    <div class="layer"><img id="img-c" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Competencia"><div class="halo" id="hl-c"></div></div>
+    <div class="layer" id="layer-rayner"><img id="img-r" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Rayner"><div class="halo" id="hl-r"></div></div>
     <div class="handle" id="handle"><div class="handle-btn">↔</div></div>
   </div>
 
@@ -96,75 +94,33 @@
 <script>
 const st = { scene: 'night', rayner: 'galaxy', comp: 'panoptix' };
 
-const svgs = {
-  night: `<svg viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1280" height="400" fill="#060b19"/><rect y="400" width="1280" height="320" fill="#0d1322"/>
-    <polygon points="540,400 740,400 1220,720 60,720" fill="#1e293b"/>
-    <line x1="640" y1="405" x2="640" y2="720" stroke="#eab308" stroke-width="6" stroke-dasharray="36,28"/>
-    <rect x="910" y="250" width="250" height="100" rx="6" fill="#065f46" stroke="#fff" stroke-width="4"/>
-    <text x="930" y="292" fill="#fff" font-family="sans-serif" font-weight="bold" font-size="24">RUTA 9 NORTE</text>
-    <text x="930" y="328" fill="#d1fae5" font-family="sans-serif" font-size="19">SALIDA 400 m ↗</text>
-    <polyline points="230,400 230,200 280,200" fill="none" stroke="#475569" stroke-width="5"/><circle cx="280" cy="200" r="22" fill="#fef08a"/>
-    <polyline points="1050,400 1050,200 1000,200" fill="none" stroke="#475569" stroke-width="5"/><circle cx="1000" cy="200" r="22" fill="#fef08a"/>
-    <rect x="390" y="405" width="210" height="75" rx="10" fill="#020617"/><rect x="420" y="375" width="150" height="38" rx="8" fill="#1e293b"/>
-    <circle cx="435" cy="446" r="28" fill="#fff"/><circle cx="563" cy="446" r="28" fill="#fff"/>
-  </svg>`,
-  pc: `<svg viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1280" height="720" fill="#cbd5e1"/><rect x="70" y="60" width="280" height="320" fill="#fef3c7" stroke="#475569" stroke-width="8"/>
-    <rect y="520" width="1280" height="200" fill="#78350f"/><rect x="310" y="100" width="660" height="405" rx="12" fill="#1e293b"/>
-    <rect x="332" y="122" width="616" height="355" fill="#fff"/><rect x="332" y="122" width="616" height="44" fill="#005eb8"/>
-    <text x="355" y="150" fill="#fff" font-family="sans-serif" font-weight="bold" font-size="18">CONTROL POST-OP — VISIÓN INTERMEDIA (60 cm)</text>
-    <text x="355" y="205" fill="#0f172a" font-family="sans-serif" font-weight="bold" font-size="22">Agudeza Visual Intermedia: 20/20 (0.0 logMAR)</text>
-    <text x="355" y="250" fill="#334155" font-family="sans-serif" font-size="18">• Lectura nítida en monitores, laptops y tablero del auto.</text>
-    <text x="355" y="285" fill="#334155" font-family="sans-serif" font-size="18">• Sensibilidad al contraste conservada bajo luz de tarde.</text>
-    <text x="355" y="320" fill="#334155" font-family="sans-serif" font-size="18">• Transición óptica continua sin saltos de enfoque.</text>
-    <rect x="370" y="365" width="75" height="90" fill="#005eb8"/><rect x="480" y="380" width="75" height="75" fill="#0284c7"/>
-    <rect x="590" y="370" width="75" height="85" fill="#38bdf8"/><rect x="700" y="390" width="75" height="65" fill="#7dd3fc"/>
-    <polygon points="310,505 970,505 1040,545 240,545" fill="#64748b"/>
-  </svg>`,
-  book: `<svg viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1280" height="720" fill="#d97706"/><rect y="100" width="1280" height="620" fill="#451a03"/>
-    <circle cx="1115" cy="215" r="54" fill="#f8fafc"/><circle cx="1115" cy="215" r="43" fill="#78350f"/>
-    <rect x="200" y="95" width="800" height="550" rx="8" fill="#1e293b"/>
-    <rect x="220" y="112" width="375" height="516" fill="#fffbeb"/><rect x="605" y="112" width="375" height="516" fill="#fef3c7"/>
-    <text x="245" y="160" fill="#1e293b" font-family="Georgia, serif" font-weight="bold" font-size="22">Capítulo IV — Visión Cercana</text>
-    <text x="245" y="205" fill="#334155" font-family="Georgia, serif" font-size="16">La luz atraviesa la óptica diseñada para</text>
-    <text x="245" y="235" fill="#334155" font-family="Georgia, serif" font-size="16">mantener el enfoque continuo desde lejos</text>
-    <text x="245" y="265" fill="#334155" font-family="Georgia, serif" font-size="16">hasta la distancia de lectura (35-40 cm).</text>
-    <text x="245" y="315" fill="#334155" font-family="Georgia, serif" font-size="16">La nitidez de caracteres pequeños (Jaeger 1)</text>
-    <text x="245" y="345" fill="#334155" font-family="Georgia, serif" font-size="16">determina la independencia real de gafas</text>
-    <text x="245" y="375" fill="#334155" font-family="Georgia, serif" font-size="16">en la vida cotidiana del paciente.</text>
-    <text x="630" y="160" fill="#1e293b" font-family="Georgia, serif" font-weight="bold" font-size="20">Test de Lectura (35 cm)</text>
-    <text x="630" y="205" fill="#334155" font-family="Georgia, serif" font-size="15">• J3: Periódicos y revistas estándar.</text>
-    <text x="630" y="235" fill="#334155" font-family="Georgia, serif" font-size="15">• J2: Libros de bolsillo y etiquetas.</text>
-    <text x="630" y="265" fill="#334155" font-family="Georgia, serif" font-size="15">• J1: Prospectos médicos y letra fina.</text>
-    <text x="630" y="315" fill="#334155" font-family="Georgia, serif" font-size="15">Deslizá la barra central hacia ambos lados</text>
-    <text x="630" y="345" fill="#334155" font-family="Georgia, serif" font-size="15">para comparar la nitidez del lente Rayner</text>
-    <text x="630" y="375" fill="#334155" font-family="Georgia, serif" font-size="15">frente al modelo de la competencia.</text>
-  </svg>`
+const photos = {
+  night: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80',
+  pc: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+  book: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1200&q=80'
 };
 
 const raynerData = {
-  galaxy: { name: 'Rayner RayOne Galaxy', fx: { night:[0,100,0.15], pc:[0,100,0], book:[0,100,0] },
+  galaxy: { name: 'Rayner RayOne Galaxy', fx: { night:[0,100,45,0.12], pc:[0,100,100,0], book:[0,100,100,0] },
     txt: { night:'<strong>RayOne Galaxy:</strong> Óptica espiral no difractiva con 100% de transmisión lumínica y halos mínimos.', pc:'<strong>RayOne Galaxy:</strong> Meseta continua sin valles en la curva de desenfoque a 60 cm.', book:'<strong>RayOne Galaxy:</strong> Visión cercana continua y nítida sin escalones difractivos.' }},
-  trifocal: { name: 'Rayner RayOne Trifocal', fx: { night:[0.5,90,0.75], pc:[0.7,93,0], book:[0.25,93,0] },
+  trifocal: { name: 'Rayner RayOne Trifocal', fx: { night:[0.6,88,40,0.75], pc:[0.8,92,96,0], book:[0.3,92,96,0] },
     txt: { night:'<strong>RayOne Trifocal:</strong> Diseño difractivo de 16 anillos (89% eficiencia) con halos moderados.', pc:'<strong>RayOne Trifocal:</strong> Adición intermedia +1.63 D (80 cm), funcional en computadora.', book:'<strong>RayOne Trifocal:</strong> Adición cercana +3.25 D (40 cm) con alta nitidez de lectura.' }},
-  emv: { name: 'Rayner RayOne EMV', fx: { night:[0.1,98,0.12], pc:[0.4,98,0], book:[2.4,98,0] },
+  emv: { name: 'Rayner RayOne EMV', fx: { night:[0.1,98,44,0.1], pc:[0.4,98,99,0], book:[2.6,98,99,0] },
     txt: { night:'<strong>RayOne EMV:</strong> Óptica no difractiva libre de halos nocturnos.', pc:'<strong>RayOne EMV:</strong> Rango intermedio extendido continuo de alta calidad.', book:'<strong>RayOne EMV:</strong> En emetropía suaviza letra muy chica; requiere micromonovisión para lectura fina.' }},
-  mono_r: { name: 'Rayner RayOne Monofocal', fx: { night:[0,100,0.1], pc:[2.8,100,0], book:[5.2,100,0] },
+  mono_r: { name: 'Rayner RayOne Monofocal', fx: { night:[0,100,45,0.08], pc:[3.0,100,100,0], book:[5.5,100,100,0] },
     txt: { night:'<strong>RayOne Monofocal:</strong> Máximo contraste lejano y ausencia de halos.', pc:'<strong>RayOne Monofocal:</strong> Desenfoque en distancia intermedia (60 cm).', book:'<strong>RayOne Monofocal:</strong> Requiere gafas de lectura para visión cercana.' }}
 };
 
 const compData = {
-  panoptix: { name: 'Alcon Clareon PanOptix Pro', fx: { night:[0.7,86,0.88], pc:[1.5,92,0], book:[0.35,92,0] },
+  panoptix: { name: 'Alcon Clareon PanOptix Pro', fx: { night:[0.8,84,38,0.9], pc:[1.7,90,95,0], book:[0.4,90,95,0] },
     txt: { night:'<strong>Clareon PanOptix Pro:</strong> Anillos difractivos generan halos concéntricos y pérdida de contraste nocturno.', pc:'<strong>Clareon PanOptix Pro:</strong> Presenta caída ("valle") en intermedia (-1.0 D, 0.11 logMAR), suavizando la pantalla.', book:'<strong>Clareon PanOptix Pro:</strong> Pico trifocal marcado en lectura (-2.0 D) con buena nitidez.' }},
-  atlisa: { name: 'ZEISS AT LISA tri 839MP', fx: { night:[0.8,84,0.92], pc:[2.0,90,0], book:[0.5,90,0] },
+  atlisa: { name: 'ZEISS AT LISA tri 839MP', fx: { night:[0.9,82,36,0.95], pc:[2.2,88,93,0], book:[0.6,88,93,0] },
     txt: { night:'<strong>ZEISS AT LISA tri:</strong> Alta incidencia de halos nocturnos y ~14% de pérdida lumínica.', pc:'<strong>ZEISS AT LISA tri:</strong> Foco intermedio a 80 cm (más lejos que una laptop), mayor desenfoque a 60 cm.', book:'<strong>ZEISS AT LISA tri:</strong> Buen enfoque cercano a 40 cm con menor contraste.' }},
-  synergy: { name: 'J&J TECNIS Synergy', fx: { night:[0.95,82,1.0], pc:[0.7,89,0], book:[0.3,89,0] },
+  synergy: { name: 'J&J TECNIS Synergy', fx: { night:[1.1,80,35,1.0], pc:[0.8,88,94,0], book:[0.3,88,94,0] },
     txt: { night:'<strong>TECNIS Synergy:</strong> Halos y starbursts nocturnos muy marcados y caída de contraste mesópico.', pc:'<strong>TECNIS Synergy:</strong> Rango continuo sólido en intermedia con leve pérdida de contraste.', book:'<strong>TECNIS Synergy:</strong> Excelente alcance cercano hasta 33 cm.' }},
-  vivity: { name: 'Alcon Clareon Vivity', fx: { night:[0.2,93,0.22], pc:[0.45,95,0], book:[3.3,95,0] },
+  vivity: { name: 'Alcon Clareon Vivity', fx: { night:[0.2,93,43,0.2], pc:[0.5,95,98,0], book:[3.5,95,98,0] },
     txt: { night:'<strong>Alcon Vivity:</strong> Diseño no difractivo con bajo nivel de halos nocturnos.', pc:'<strong>Alcon Vivity:</strong> Muy buen rendimiento en computadora e intermedia.', book:'<strong>Alcon Vivity:</strong> Al ser EDOF pierde nitidez en letra chica de cerca (requiere gafas para leer).' }},
-  mono_c: { name: 'Monofocal Estándar', fx: { night:[0,100,0.1], pc:[2.9,100,0], book:[5.4,100,0] },
+  mono_c: { name: 'Monofocal Estándar', fx: { night:[0,100,45,0.08], pc:[3.1,100,100,0], book:[5.6,100,100,0] },
     txt: { night:'<strong>Monofocal Estándar:</strong> Alta nitidez lejana y sin anillos difractivos.', pc:'<strong>Monofocal Estándar:</strong> Desenfoque marcado en pantalla de computadora.', book:'<strong>Monofocal Estándar:</strong> Desenfoque total en lectura sin gafas.' }}
 };
 
@@ -191,14 +147,14 @@ function render() {
   document.getElementById('lbl-r').textContent = r.name;
   document.getElementById('lbl-c').textContent = c.name;
   if (lastSc !== st.scene) {
-    document.getElementById('sc-r').innerHTML = svgs[st.scene];
-    document.getElementById('sc-c').innerHTML = svgs[st.scene];
+    document.getElementById('img-r').src = photos[st.scene];
+    document.getElementById('img-c').src = photos[st.scene];
     lastSc = st.scene;
   }
-  document.getElementById('sc-r').style.filter = `blur(${rFx[0]}px) contrast(${rFx[1]}%)`;
-  document.getElementById('hl-r').style.opacity = rFx[2];
-  document.getElementById('sc-c').style.filter = `blur(${cFx[0]}px) contrast(${cFx[1]}%)`;
-  document.getElementById('hl-c').style.opacity = cFx[2];
+  document.getElementById('img-r').style.filter = `blur(${rFx[0]}px) contrast(${rFx[1]}%) brightness(${rFx[2]}%)`;
+  document.getElementById('hl-r').style.opacity = rFx[3];
+  document.getElementById('img-c').style.filter = `blur(${cFx[0]}px) contrast(${cFx[1]}%) brightness(${cFx[2]}%)`;
+  document.getElementById('hl-c').style.opacity = cFx[3];
   document.getElementById('note-r').innerHTML = r.txt[st.scene];
   document.getElementById('note-c').innerHTML = c.txt[st.scene];
 }
