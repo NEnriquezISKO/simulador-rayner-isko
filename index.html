@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Simulador Comparativo de Visión - Lentes Intraoculares</title>
+  <title>Simulador Comparativo RayOne Galaxy vs. Competencia</title>
   <style>
     :root {
-      --primary: #005eb8; /* Azul clínico tipo Rayner */
+      --primary: #005eb8;
       --dark: #0f172a;
       --panel: #1e293b;
       --text: #f8fafc;
@@ -45,15 +45,14 @@
       width: 100%;
       margin: 0 auto;
       padding: 1.5rem;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
 
-    /* Contenedor del Comparador */
     .simulator-wrapper {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      max-height: 600px;
+      max-height: 580px;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
@@ -77,29 +76,29 @@
       transition: filter 0.3s ease;
     }
 
-    /* Capa superior recortada por el slider */
     #layer-rayner {
       clip-path: inset(0 50% 0 0);
       z-index: 2;
     }
 
-    /* Simulación de Halos Nocturnos (Disfotopsias) */
+    /* Simulación de Halos y Glare Nocturno */
     .halo-overlay {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 35% 58%, rgba(255,255,220,0.35) 0%, rgba(255,200,100,0.15) 8%, transparent 18%),
-                  radial-gradient(circle at 65% 58%, rgba(255,255,220,0.35) 0%, rgba(255,200,100,0.15) 8%, transparent 18%);
+      background: 
+        radial-gradient(circle at 32% 58%, rgba(255,255,230,0.45) 0%, rgba(255,210,120,0.22) 6%, rgba(255,180,80,0.08) 12%, transparent 20%),
+        radial-gradient(circle at 68% 58%, rgba(255,255,230,0.45) 0%, rgba(255,210,120,0.22) 6%, rgba(255,180,80,0.08) 12%, transparent 20%),
+        radial-gradient(circle at 50% 42%, rgba(255,240,200,0.3) 0%, rgba(255,200,100,0.12) 5%, transparent 14%);
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.35s ease;
       mix-blend-mode: screen;
     }
 
-    /* Etiquetas flotantes */
     .badge {
       position: absolute;
       top: 16px;
-      padding: 6px 14px;
+      padding: 7px 14px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 600;
@@ -107,10 +106,9 @@
       backdrop-filter: blur(6px);
     }
 
-    .badge-left { left: 16px; background: rgba(0, 94, 184, 0.85); color: #fff; border: 1px solid var(--accent); }
-    .badge-right { right: 16px; background: rgba(15, 23, 42, 0.85); color: #cbd5e1; border: 1px solid #475569; }
+    .badge-left { left: 16px; background: rgba(0, 94, 184, 0.9); color: #fff; border: 1px solid var(--accent); }
+    .badge-right { right: 16px; background: rgba(15, 23, 42, 0.9); color: #f1f5f9; border: 1px solid #64748b; }
 
-    /* Línea y botón del Slider */
     .slider-handle {
       position: absolute;
       top: 0;
@@ -141,10 +139,9 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
-    /* Panel de Controles */
     .controls-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: 1.5fr 1fr 0.8fr;
       gap: 1rem;
       background: var(--panel);
       padding: 1.25rem;
@@ -152,20 +149,25 @@
       border: 1px solid #334155;
     }
 
-    .control-group { display: flex; flex-direction: column; gap: 0.5rem; }
-    .control-group label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; }
+    @media (max-width: 900px) {
+      .controls-grid { grid-template-columns: 1fr; }
+    }
 
-    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .control-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .control-group label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; }
+
+    .btn-group { display: flex; gap: 0.45rem; flex-wrap: wrap; }
 
     button {
       flex: 1;
-      padding: 0.6rem 0.8rem;
+      min-width: fit-content;
+      padding: 0.55rem 0.75rem;
       border: 1px solid #475569;
       background: #0f172a;
       color: #cbd5e1;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 500;
       transition: all 0.2s;
     }
@@ -180,10 +182,11 @@
 
     .info-bar {
       font-size: 0.9rem;
-      color: #cbd5e1;
+      line-height: 1.45;
+      color: #e2e8f0;
       background: rgba(56, 189, 248, 0.1);
       border-left: 4px solid var(--accent);
-      padding: 0.8rem 1rem;
+      padding: 0.9rem 1.1rem;
       border-radius: 0 8px 8px 0;
     }
   </style>
@@ -191,38 +194,36 @@
 <body>
 
 <header>
-  <h1>Simulador Óptico Comparativo | <span>Rayner Galaxy</span> vs. Competencia</h1>
+  <h1>Simulador Óptico | <span>Rayner RayOne Galaxy</span> vs. Lentes de la Competencia</h1>
 </header>
 
 <div class="main-container">
   <div class="simulator-wrapper" id="sim-box">
-    <div class="badge badge-left">Rayner Galaxy (Óptica Espiral)</div>
-    <div class="badge badge-right" id="comp-label">Trifocal Difractivo Estándar</div>
+    <div class="badge badge-left">Rayner RayOne Galaxy (Óptica Espiral)</div>
+    <div class="badge badge-right" id="comp-label">Alcon PanOptix (Trifocal)</div>
 
-    <!-- Capa Derecha: Competencia -->
     <div class="sim-layer" id="layer-comp">
       <img id="img-comp" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Escena Competencia">
       <div class="halo-overlay" id="halo-comp"></div>
     </div>
 
-    <!-- Capa Izquierda: Rayner -->
     <div class="sim-layer" id="layer-rayner">
       <img id="img-rayner" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Escena Rayner">
     </div>
 
-    <!-- Control Deslizante -->
     <div class="slider-handle" id="slider-handle">
       <div class="slider-button">↔</div>
     </div>
   </div>
 
-  <!-- Controles Interactivos -->
   <div class="controls-grid">
     <div class="control-group">
-      <label>1. Lente a Comparar (Derecha)</label>
+      <label>1. Seleccionar Lente a Comparar (Derecha)</label>
       <div class="btn-group" id="lens-selector">
-        <button class="active" data-lens="trifocal">Trifocal Difractivo</button>
-        <button data-lens="edof">EDOF Estándar</button>
+        <button class="active" data-lens="panoptix">Alcon PanOptix</button>
+        <button data-lens="atlisa">ZEISS AT LISA tri</button>
+        <button data-lens="synergy">TECNIS Synergy</button>
+        <button data-lens="vivity">Alcon Vivity</button>
         <button data-lens="monofocal">Monofocal</button>
       </div>
     </div>
@@ -230,9 +231,9 @@
     <div class="control-group">
       <label>2. Distancia de Enfoque</label>
       <div class="btn-group" id="dist-selector">
-        <button class="active" data-dist="far">Lejos (Conducción)</button>
-        <button data-dist="inter">Intermedia (Tablero/PC)</button>
-        <button data-dist="near">Cerca (Lectura)</button>
+        <button class="active" data-dist="far">Lejos</button>
+        <button data-dist="inter">Intermedia (60 cm)</button>
+        <button data-dist="near">Cerca (33-40 cm)</button>
       </div>
     </div>
 
@@ -240,37 +241,81 @@
       <label>3. Condición Lumínica</label>
       <div class="btn-group" id="light-selector">
         <button class="active" data-light="day">Día</button>
-        <button data-light="night">Noche (Disfotopsias)</button>
+        <button data-light="night">Noche</button>
       </div>
     </div>
   </div>
 
-  <div class="info-bar" id="clinical-note">
-    <strong>Nota clínica:</strong> En visión lejana diurna, ambos lentes ofrecen alta agudeza visual, aunque los diseños difractivos pueden presentar una leve pérdida de sensibilidad al contraste.
-  </div>
+  <div class="info-bar" id="clinical-note"></div>
 </div>
 
 <script>
-  // Estado actual del simulador
   const state = {
-    lens: 'trifocal',
+    lens: 'panoptix',
     dist: 'far',
     light: 'day'
   };
 
-  // Imágenes de ejemplo (Reemplazar por tus propias imágenes locales en GitHub, ej: 'img/dia.jpg' y 'img/noche.jpg')
+  // Escenas base (Podés reemplazar estas URLs por 'dia.jpg' y 'noche.jpg' si las subís a tu repositorio)
   const scenes = {
     day: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80',
     night: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80'
   };
 
-  const lensNames = {
-    trifocal: 'Trifocal Difractivo Estándar',
-    edof: 'EDOF Estándar',
-    monofocal: 'Monofocal Asférico'
+  // Base de datos de comportamiento óptico por modelo comercial
+  const lensProfiles = {
+    panoptix: {
+      badge: 'Alcon AcrySof / Clareon PanOptix (Trifocal Difractivo)',
+      blur: { far: 0.2, inter: 0.3, near: 0.3 },
+      contrast: 91, // Pérdida por división de luz en anillos difractivos (~88% eficiencia)
+      nightHalo: 0.85,
+      notes: {
+        day: '<strong>RayOne Galaxy vs. Alcon PanOptix (Día):</strong> Ambos cubren lejos, intermedia (60 cm) y cerca (40 cm). Sin embargo, PanOptix divide la luz en 3 focos mediante anillos difractivos (88% de transmisión), mientras que la óptica espiral de Galaxy evita escalones difractivos y optimiza la sensibilidad al contraste.',
+        night: '<strong>RayOne Galaxy vs. Alcon PanOptix (Noche):</strong> Los anillos difractivos de PanOptix generan halos concéntricos y glare alrededor de los faros. RayOne Galaxy, al no tener anillos difractivos, reduce significativamente las disfotopsias nocturnas.'
+      }
+    },
+    atlisa: {
+      badge: 'ZEISS AT LISA tri 839MP (Trifocal Difractivo)',
+      blur: { far: 0.2, inter: 0.6, near: 0.3 }, // Foco intermedio a 80 cm (ligeramente más lejano que 60 cm)
+      contrast: 89, // ~85.7% transmisión lumínica
+      nightHalo: 0.90,
+      notes: {
+        day: '<strong>RayOne Galaxy vs. ZEISS AT LISA tri (Día):</strong> AT LISA tri sitúa su foco intermedio a 80 cm (algo lejos para pantallas a 60 cm) y presenta una pérdida lumínica cercana al 14% por difracción. Galaxy ofrece un rango de desenfoque continuo sin caídas entre distancias.',
+        night: '<strong>RayOne Galaxy vs. ZEISS AT LISA tri (Noche):</strong> Alta incidencia de halos nocturnos en AT LISA tri debido a su estructura difractiva de superficie completa, frente al perfil continuo de RayOne Galaxy.'
+      }
+    },
+    synergy: {
+      badge: 'J&J TECNIS Synergy (Híbrido EDOF + Multifocal)',
+      blur: { far: 0.3, inter: 0.2, near: 0.2 },
+      contrast: 88,
+      nightHalo: 0.95, // Reconocido clínicamente por mayor halo/starburst nocturno
+      notes: {
+        day: '<strong>RayOne Galaxy vs. TECNIS Synergy (Día):</strong> Synergy logra un rango continuo muy fuerte hasta 33 cm, pero a costa de una estructura difractiva compleja que reduce la sensibilidad al contraste en condiciones mesópicas.',
+        night: '<strong>RayOne Galaxy vs. TECNIS Synergy (Noche):</strong> Synergy suele presentar halos y starbursts intensos en conducción nocturna. RayOne Galaxy ofrece un rango continuo similar sin penalizar la calidad visual nocturna.'
+      }
+    },
+    vivity: {
+      badge: 'Alcon AcrySof / Clareon Vivity (EDOF No Difractivo)',
+      blur: { far: 0.1, inter: 0.2, near: 2.6 }, // Pierde nitidez en lectura cercana
+      contrast: 94,
+      nightHalo: 0.25, // Bajo nivel de halos, similar a monofocal
+      notes: {
+        day: '<strong>RayOne Galaxy vs. Alcon Vivity (Día):</strong> Ambos son diseños no difractivos con bajo nivel de halos, pero Vivity es un EDOF que pierde agudeza visual en visión cercana (lectura de letra chica), donde RayOne Galaxy mantiene independencia de gafas.',
+        night: '<strong>RayOne Galaxy vs. Alcon Vivity (Noche):</strong> Ambos mantienen un perfil bajo de disfotopsias nocturnas gracias a su diseño sin anillos difractivos, con ventaja de rango cercano funcional para Galaxy.'
+      }
+    },
+    monofocal: {
+      badge: 'Lente Monofocal Asférico Estándar',
+      blur: { far: 0.0, inter: 2.4, near: 5.2 },
+      contrast: 100,
+      nightHalo: 0.10,
+      notes: {
+        day: '<strong>RayOne Galaxy vs. Monofocal (Día):</strong> Nitidez máxima a distancia en ambos, pero el monofocal carece de profundidad de foco: desenfoca el tablero del auto (intermedia) y impide leer sin gafas (cerca).',
+        night: '<strong>RayOne Galaxy vs. Monofocal (Noche):</strong> El monofocal es el estándar de referencia en ausencia de halos, perfil al que RayOne Galaxy se aproxima gracias a su óptica espiral sin anillos difractivos.'
+      }
+    }
   };
 
-  // Elementos DOM
   const simBox = document.getElementById('sim-box');
   const layerRayner = document.getElementById('layer-rayner');
   const sliderHandle = document.getElementById('slider-handle');
@@ -280,7 +325,6 @@
   const compLabel = document.getElementById('comp-label');
   const clinicalNote = document.getElementById('clinical-note');
 
-  // Lógica del Slider (Mouse + Touch para tablets/celulares)
   let isDragging = false;
 
   function updateSlider(clientX) {
@@ -302,60 +346,31 @@
   window.addEventListener('touchend', () => isDragging = false);
   window.addEventListener('touchmove', (e) => { if (isDragging) updateSlider(e.touches[0].clientX); });
 
-  // Lógica óptica y actualización de filtros
   function renderSimulation() {
-    compLabel.textContent = lensNames[state.lens];
-    
-    // Cambiar imagen si cambia día/noche
-    if (imgRayner.src !== scenes[state.light]) {
-      imgRayner.src = scenes[state.light];
-      imgComp.src = scenes[state.light];
+    const profile = lensProfiles[state.lens];
+    compLabel.textContent = profile.badge;
+
+    const currentSrc = scenes[state.light];
+    if (imgRayner.src !== currentSrc) {
+      imgRayner.src = currentSrc;
+      imgComp.src = currentSrc;
     }
 
-    let raynerFilter = 'blur(0px) contrast(100%)';
-    let compFilter = 'blur(0px) contrast(100%)';
-    let haloOpacity = 0;
-    let note = '';
+    // RayOne Galaxy mantiene enfoque continuo y alto contraste en las 3 distancias
+    imgRayner.style.filter = 'blur(0px) contrast(100%)';
 
-    // Reglas ópticas simuladas
-    if (state.lens === 'trifocal') {
-      compFilter = 'blur(0.4px) contrast(90%)'; // Leve pérdida de contraste por división de luz
-      if (state.light === 'night') {
-        haloOpacity = 0.85; // Halos marcados por anillos difractivos
-        note = '<strong>Visión Nocturna:</strong> Los anillos difractivos del trifocal generan halos y glare alrededor de luces puntuales. La óptica espiral continua de Rayner Galaxy minimiza estas disfotopsias.';
-      } else {
-        note = '<strong>Visión Diurna:</strong> Rango completo en ambos lentes, pero Rayner Galaxy aprovecha el 100% de la transmisión lumínica sin escalones difractivos.';
-      }
-    } 
-    else if (state.lens === 'edof') {
-      if (state.dist === 'near') {
-        compFilter = 'blur(2.8px) contrast(95%)';
-        note = '<strong>Visión Cercana:</strong> Los lentes EDOF estándar pierden nitidez en lectura cercana (33-40 cm), mientras que Rayner Galaxy mantiene un rango continuo funcional.';
-      } else {
-        compFilter = 'blur(0.2px) contrast(96%)';
-        haloOpacity = state.light === 'night' ? 0.35 : 0;
-        note = '<strong>Lejos e Intermedia:</strong> Buen desempeño del EDOF en distancia intermedia, con menor incidencia de halos que un trifocal.';
-      }
-    } 
-    else if (state.lens === 'monofocal') {
-      if (state.dist === 'inter') {
-        compFilter = 'blur(2.5px)';
-        note = '<strong>Visión Intermedia:</strong> El lente monofocal comienza a desenfocar objetos a distancia de tablero o computadora.';
-      } else if (state.dist === 'near') {
-        compFilter = 'blur(5.5px)';
-        note = '<strong>Visión Cercana:</strong> Dependencia total de gafas de lectura con un monofocal estándar frente a la independencia de gafas de Galaxy.';
-      } else {
-        note = '<strong>Visión Lejana:</strong> Máxima nitidez a distancia en ambos lentes, pero el monofocal carece de profundidad de foco.';
-      }
-    }
+    // Competencia aplica el desenfoque de la distancia elegida + su nivel de contraste
+    const blurVal = profile.blur[state.dist];
+    const contrastVal = state.light === 'night' ? profile.contrast - 4 : profile.contrast;
+    imgComp.style.filter = `blur(${blurVal}px) contrast(${contrastVal}%)`;
 
-    imgRayner.style.filter = raynerFilter;
-    imgComp.style.filter = compFilter;
-    haloComp.style.opacity = haloOpacity;
-    clinicalNote.innerHTML = note;
+    // Halos nocturnos
+    haloComp.style.opacity = state.light === 'night' ? profile.nightHalo : 0;
+
+    // Nota clínica contextual
+    clinicalNote.innerHTML = profile.notes[state.light];
   }
 
-  // Manejo de botones
   function setupButtons(groupId, stateKey) {
     const group = document.getElementById(groupId);
     group.querySelectorAll('button').forEach(btn => {
@@ -372,7 +387,6 @@
   setupButtons('dist-selector', 'dist');
   setupButtons('light-selector', 'light');
 
-  // Inicializar
   renderSimulation();
 </script>
 </body>
