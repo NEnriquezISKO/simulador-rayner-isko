@@ -200,7 +200,7 @@
 <div class="main-container">
   <div class="simulator-wrapper" id="sim-box">
     <div class="badge badge-left">Rayner RayOne Galaxy (Óptica Espiral)</div>
-    <div class="badge badge-right" id="comp-label">Alcon PanOptix (Trifocal)</div>
+    <div class="badge badge-right" id="comp-label">Alcon Clareon PanOptix Pro (Trifocal Difractivo)</div>
 
     <div class="sim-layer" id="layer-comp">
       <img id="img-comp" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Escena Competencia">
@@ -220,7 +220,7 @@
     <div class="control-group">
       <label>1. Seleccionar Lente a Comparar (Derecha)</label>
       <div class="btn-group" id="lens-selector">
-        <button class="active" data-lens="panoptix">Alcon PanOptix</button>
+        <button class="active" data-lens="panoptix">Clareon PanOptix Pro</button>
         <button data-lens="atlisa">ZEISS AT LISA tri</button>
         <button data-lens="synergy">TECNIS Synergy</button>
         <button data-lens="vivity">Alcon Vivity</button>
@@ -232,7 +232,7 @@
       <label>2. Distancia de Enfoque</label>
       <div class="btn-group" id="dist-selector">
         <button class="active" data-dist="far">Lejos</button>
-        <button data-dist="inter">Intermedia (60 cm)</button>
+        <button data-dist="inter">Intermedia (60-80 cm)</button>
         <button data-dist="near">Cerca (33-40 cm)</button>
       </div>
     </div>
@@ -265,19 +265,19 @@
   // Base de datos de comportamiento óptico por modelo comercial
   const lensProfiles = {
     panoptix: {
-      badge: 'Alcon AcrySof / Clareon PanOptix (Trifocal Difractivo)',
-      blur: { far: 0.2, inter: 0.3, near: 0.3 },
-      contrast: 91, // Pérdida por división de luz en anillos difractivos (~88% eficiencia)
+      badge: 'Alcon Clareon PanOptix Pro (Trifocal Difractivo)',
+      blur: { far: 0.0, inter: 0.45, near: 0.15 },
+      contrast: 91,
       nightHalo: 0.85,
       notes: {
-        day: '<strong>RayOne Galaxy vs. Alcon PanOptix (Día):</strong> Ambos cubren lejos, intermedia (60 cm) y cerca (40 cm). Sin embargo, PanOptix divide la luz en 3 focos mediante anillos difractivos (88% de transmisión), mientras que la óptica espiral de Galaxy evita escalones difractivos y optimiza la sensibilidad al contraste.',
-        night: '<strong>RayOne Galaxy vs. Alcon PanOptix (Noche):</strong> Los anillos difractivos de PanOptix generan halos concéntricos y glare alrededor de los faros. RayOne Galaxy, al no tener anillos difractivos, reduce significativamente las disfotopsias nocturnas.'
+        day: '<strong>RayOne Galaxy vs. Clareon PanOptix Pro (Día):</strong> Ambos logran máxima agudeza de lejos (0.0 D) y lectura cercana (-2.0 D). Sin embargo, en la curva de desenfoque PanOptix presenta una caída en distancia intermedia (-1.0 D, 0.11 logMAR), mientras que la óptica espiral de Galaxy mantiene una visión continua sin valles.',
+        night: '<strong>RayOne Galaxy vs. Clareon PanOptix Pro (Noche):</strong> Al ser un lente trifocal difractivo, PanOptix Pro puede generar anillos alrededor de las luces (halos), glare, starbursts y menor sensibilidad al contraste en baja iluminación, efectos que el diseño no difractivo de RayOne Galaxy minimiza.'
       }
     },
     atlisa: {
       badge: 'ZEISS AT LISA tri 839MP (Trifocal Difractivo)',
-      blur: { far: 0.2, inter: 0.6, near: 0.3 }, // Foco intermedio a 80 cm (ligeramente más lejano que 60 cm)
-      contrast: 89, // ~85.7% transmisión lumínica
+      blur: { far: 0.2, inter: 0.6, near: 0.3 },
+      contrast: 89,
       nightHalo: 0.90,
       notes: {
         day: '<strong>RayOne Galaxy vs. ZEISS AT LISA tri (Día):</strong> AT LISA tri sitúa su foco intermedio a 80 cm (algo lejos para pantallas a 60 cm) y presenta una pérdida lumínica cercana al 14% por difracción. Galaxy ofrece un rango de desenfoque continuo sin caídas entre distancias.',
@@ -288,7 +288,7 @@
       badge: 'J&J TECNIS Synergy (Híbrido EDOF + Multifocal)',
       blur: { far: 0.3, inter: 0.2, near: 0.2 },
       contrast: 88,
-      nightHalo: 0.95, // Reconocido clínicamente por mayor halo/starburst nocturno
+      nightHalo: 0.95,
       notes: {
         day: '<strong>RayOne Galaxy vs. TECNIS Synergy (Día):</strong> Synergy logra un rango continuo muy fuerte hasta 33 cm, pero a costa de una estructura difractiva compleja que reduce la sensibilidad al contraste en condiciones mesópicas.',
         night: '<strong>RayOne Galaxy vs. TECNIS Synergy (Noche):</strong> Synergy suele presentar halos y starbursts intensos en conducción nocturna. RayOne Galaxy ofrece un rango continuo similar sin penalizar la calidad visual nocturna.'
@@ -296,9 +296,9 @@
     },
     vivity: {
       badge: 'Alcon AcrySof / Clareon Vivity (EDOF No Difractivo)',
-      blur: { far: 0.1, inter: 0.2, near: 2.6 }, // Pierde nitidez en lectura cercana
+      blur: { far: 0.1, inter: 0.2, near: 2.6 },
       contrast: 94,
-      nightHalo: 0.25, // Bajo nivel de halos, similar a monofocal
+      nightHalo: 0.25,
       notes: {
         day: '<strong>RayOne Galaxy vs. Alcon Vivity (Día):</strong> Ambos son diseños no difractivos con bajo nivel de halos, pero Vivity es un EDOF que pierde agudeza visual en visión cercana (lectura de letra chica), donde RayOne Galaxy mantiene independencia de gafas.',
         night: '<strong>RayOne Galaxy vs. Alcon Vivity (Noche):</strong> Ambos mantienen un perfil bajo de disfotopsias nocturnas gracias a su diseño sin anillos difractivos, con ventaja de rango cercano funcional para Galaxy.'
@@ -310,7 +310,7 @@
       contrast: 100,
       nightHalo: 0.10,
       notes: {
-        day: '<strong>RayOne Galaxy vs. Monofocal (Día):</strong> Nitidez máxima a distancia en ambos, pero el monofocal carece de profundidad de foco: desenfoca el tablero del auto (intermedia) y impide leer sin gafas (cerca).',
+        day: '<strong>RayOne Galaxy vs. Monofocal (Día):</strong> Nitidez máxima a distancia en ambos, pero el monofocal carece de profundidad de foco: desenfoca el tablero del auto (intermedia) e impide leer sin gafas (cerca).',
         night: '<strong>RayOne Galaxy vs. Monofocal (Noche):</strong> El monofocal es el estándar de referencia en ausencia de halos, perfil al que RayOne Galaxy se aproxima gracias a su óptica espiral sin anillos difractivos.'
       }
     }
