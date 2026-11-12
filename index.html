@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Comparador Clínico de Curvas de Desenfoque | Rayner vs. Competencia</title>
+  <style>
+    :root { --rayner: #005eb8; --accent: #38bdf8; --comp: #f59e0b; --dark: #090d16; --panel: #131b2e; --border: #1e293b; --text: #f8fafc; --muted: #94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--dark); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+    header { padding: 1rem 1.5rem; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    header h1 { font-size: 1.15rem; font-weight: 600; }
+    header span { color: var(--accent); }
+    header small { color: var(--muted); font-size: 0.8rem; }
+    .container { max-width: 1200px; width: 100%; margin: 0 auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .controls-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.2rem; }
+    @media (max-width: 900px) { .controls-panel { grid-template-columns: 1fr; } }
+    .group { display: flex; flex-direction: column; gap: 0.45rem; }
+    .group-header { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .dot-r { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: inline-block; }
+    .dot-c { width: 10px; height: 10px; border-radius: 50%; background: var(--comp); display: inline-block; }
+    .btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    button { flex: 1; min-width: fit-content; padding: 0.55rem 0.75rem; border: 1px solid #334155; background: var(--dark); color: #cbd5e1; border-radius: 7px; cursor: pointer; font-size: 0.81rem; font-weight: 500; }
+    button:hover { border-color: #64748b; color: #fff; }
+    button.act-r { background: var(--rayner); border-color: var(--accent); color: #fff; font-weight: 600; }
+    button.act-c { background: rgba(245, 158, 11, 0.2); border-color: var(--comp); color: #fbbf24; font-weight: 600; }
+    .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.85rem; }
+    .chart-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+    .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; font-weight: 600; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 0.45rem; }
+    .line-r { width: 22px; height: 3px; background: var(--accent); border-radius: 2px; }
+    .line-c { width: 22px; height: 3px; background: var(--comp); border-radius: 2px; }
+    .ext-link { color: #94a3b8; text-decoration: none; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: var(--dark); border: 1px solid #334155; display: inline-flex; align-items: center; gap: 4px; }
+    .ext-link:hover { color: #fff; border-color: var(--accent); }
+    .inspector-bar { background: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem; }
+    .svg-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 7.2; min-height: 300px; touch-action: none; user-select: none; }
+    svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.85rem; }
+    .metric-box { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; }
+    .metric-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.4rem; }
+    .metric-vals { display: flex; justify-content: space-between; align-items: baseline; }
+    .val-r { color: var(--accent); font-size: 1.05rem; font-weight: 700; }
+    .val-c { color: var(--comp); font-size: 0.95rem; font-weight: 600; }
+    .metric-sub { font-size: 0.76rem; color: #64748b; margin-top: 0.25rem; }
+    .clinical-summary { background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; font-size: 0.88rem; line-height: 1.5; color: #e2e8f0; }
+    .source-links-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .ref-text { font-size: 0.74rem; color: var(--muted); margin-top: 0.65rem; line-height: 1.45; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.55rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Curvas de Desenfoque Binocular | <span>Portafolio Rayner</span> vs. Competencia</h1>
+  <small>Agudeza Visual Binocular corregida de lejos (logMAR)</small>
+</header>
+
+<div class="container">
+  <div class="controls-panel">
+    <div class="group">
+      <div class="group-header" style="color: var(--accent);"><span class="dot-r"></span> 1. Lente Rayner (Curva Azul)</div>
+      <div class="btns" id="btn-rayner">
+        <button class="act-r" data-v="galaxy">RayOne Galaxy</button>
+        <button data-v="trifocal">RayOne Trifocal</button>
+        <button data-v="emv">RayOne EMV (Emetropía)</button>
+        <button data-v="emv_mono">RayOne EMV (Monovisión -1.5D)</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-header" style="color: var(--comp);"><span class="dot-c"></span> 2. Lente Competencia (Curva Naranja)</div>
+      <div class="btns" id="btn-comp">
+        <button class="act-c" data-v="puresee">J&J PureSee</button>
+        <button data-v="panoptix">Alcon PanOptix</button>
+        <button data-v="vivity">Alcon Vivity</button>
+        <button data-v="atlara">ZEISS AT LARA</button>
+        <button data-v="atlisa">ZEISS AT LISA tri</button>
+        <button data-v="eyhance">J&J Eyhance</button>
+        <button data-v="symfony">J&J Symfony</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-top">
+      <div class="legend">
+        <div class="legend-item"><span class="line-r"></span> <span id="leg-r">RayOne Galaxy</span></div>
+        <div class="legend-item"><span class="line-c"></span> <span id="leg-c">J&J TECNIS PureSee</span></div>
+      </div>
+      <div style="font-size: 0.78rem; color: #34d399; font-weight: 600;">■ Zona funcional ≤ 0.20 logMAR (20/32 o mejor)</div>
+    </div>
+
+    <div class="inspector-bar" id="inspector-bar"></div>
+
+    <div class="svg-wrapper" id="chart-area">
+      <svg id="defocus-svg" viewBox="0 0 920 400" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="metrics-grid" id="metrics-grid"></div>
+
+  <div class="clinical-summary">
+    <div id="clinical-text"></div>
+    <div class="source-links-row" id="source-links"></div>
+    <div class="ref-text" id="ref-text"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  const diopters = [1.0, 0.5, 0.0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0, -3.5];
+
+  const raynerCurves = {
+    galaxy: {
+      name: 'RayOne Galaxy',
+      url: 'https://rayner.com/global/en/iol/galaxy/',
+      va: [0.20, 0.05, -0.05, -0.02, 0.01, 0.02, 0.05, 0.12, 0.23, 0.35],
+      note: '<strong>RayOne Galaxy:</strong> Óptica espiral no difractiva con 0% de pérdida lumínica. Rango continuo de lejos a cerca sin valles intermedios y disfotopsias mínimas.',
+      ref: 'RayOne Galaxy: Abela-Formanek C et al. J Refract Surg. 2025;41(11):e1213-e1222.'
+    },
+    trifocal: {
+      name: 'RayOne Trifocal',
+      url: 'https://rayner.com/global/en/iol/trifocal/',
+      va: [0.22, 0.06, -0.04, 0.03, 0.08, 0.05, 0.03, 0.06, 0.18, 0.32],
+      note: '<strong>RayOne Trifocal:</strong> Diseño difractivo patentado de 16 anillos (89% de transmisión lumínica; solo 11% de pérdida). Menor incidencia de halos frente a FineVision y PanOptix.',
+      ref: 'RayOne Trifocal: Ferreira TB & Ribeiro FJ. J Refract Surg. 2019;35(7):418-425.'
+    },
+    emv: {
+      name: 'RayOne EMV (Emetropía)',
+      url: 'https://rayner.com/global/en/iol/rayone-emv/',
+      va: [0.16, 0.02, -0.05, -0.01, 0.04, 0.11, 0.21, 0.32, 0.43, 0.50],
+      note: '<strong>RayOne EMV (Emetropía):</strong> Lente no difractivo diseñado junto al Prof. Graham Barrett. Hasta 1.5 D de rango extendido continuo con contraste y perfil nocturno monofocal.',
+      ref: 'RayOne EMV: Rayner Clinical Data (RDTR 1937); Estudio multicéntrico en 8 países.'
+    },
+    emv_mono: {
+      name: 'RayOne EMV (Monovisión -1.5 D)',
+      url: 'https://rayner.com/global/en/iol/rayone-emv/',
+      va: [0.18, 0.03, -0.04, -0.01, 0.02, 0.04, 0.08, 0.14, 0.24, 0.36],
+      note: '<strong>RayOne EMV (Monovisión -1.5 D):</strong> Con offset de -1.5 D en el ojo cercano, la aberración esférica positiva crea fusión binocular continua de lejos a cerca sin halos difractivos.',
+      ref: 'RayOne EMV Monovisión: Rayner Global Clinical Guidelines (Prof. Graham Barrett).'
+    }
+  };
+
+  const compCurves = {
+    puresee: {
+      name: 'J&J TECNIS PureSee',
+      url: 'https://www.jnjvisionpro.com/en-us/products/tecnis-puresee/',
+      va: [0.21, 0.04, -0.05, -0.01, 0.04, 0.10, 0.19, 0.29, 0.40, 0.49],
+      note: '<strong>J&J TECNIS PureSee:</strong> EDOF puramente refractivo con bajo nivel de halos, pero se atenúa a partir de -1.5 D / -2.0 D, ofreciendo menor agudeza cercana que RayOne Galaxy.',
+      ref: 'J&J PureSee: Promedio ponderado Corbett 2024, Hassel 2024, Tandogan 2024, Boccuzzi 2024.'
+    },
+    panoptix: {
+      name: 'Alcon Clareon PanOptix',
+      url: 'https://www.myalcon.com/ar/professional/cataract-surgery/iols/panoptix/',
+      va: [0.21, 0.03, -0.06, 0.03, 0.11, 0.04, 0.00, 0.03, 0.16, 0.30],
+      note: '<strong>Alcon PanOptix:</strong> Trifocal difractivo (88% eficiencia) con pico cercano en -2.0 D, pero presenta caída ("valle") en intermedia (-1.0 D: 0.11 logMAR) y anillos difractivos.',
+      ref: 'Alcon PanOptix: Modi S et al. Ophthalmology 2021; Böhm M et al. JCRS 2019.'
+    },
+    vivity: {
+      name: 'Alcon Clareon Vivity',
+      url: 'https://www.myalcon.com/professional/cataract-surgery/iols/clareon-vivity/',
+      va: [0.22, 0.05, -0.03, 0.01, 0.06, 0.13, 0.23, 0.34, 0.44, 0.50],
+      note: '<strong>Alcon Vivity:</strong> EDOF no difractivo (X-WAVE). Bajo perfil de halos, pero cae debajo de 0.20 logMAR desde -1.75 D, requiriendo gafas para lectura fina.',
+      ref: 'Alcon Vivity: Vivity DFU; Shafer 2022; Kandavel 2023; Savini 2025.'
+    },
+    atlara: {
+      name: 'ZEISS AT LARA 829MP',
+      url: 'https://www.zeiss.com/meditec/es/productos/lentes-intraoculares/lentes-edof/at-lara-829mp.html',
+      va: [0.21, 0.05, -0.03, 0.01, 0.05, 0.11, 0.21, 0.32, 0.42, 0.49],
+      note: '<strong>ZEISS AT LARA 829MP:</strong> EDOF difractivo. Mantiene visión funcional binocular hasta ~ -1.8 D, pero con menor agudeza que Galaxy y mayor tasa de halos.',
+      ref: 'ZEISS AT LARA: Promedio ponderado binocular Reinhard 2020, Moore 2024, Ganesh 2021.'
+    },
+    atlisa: {
+      name: 'ZEISS AT LISA tri 839MP',
+      url: 'https://www.zeiss.com/meditec/es/productos/lentes-intraoculares/lentes-trifocales/at-lisa-tri-839mp.html',
+      va: [0.22, 0.05, -0.04, 0.03, 0.10, 0.05, 0.03, 0.07, 0.19, 0.33],
+      note: '<strong>ZEISS AT LISA tri 839MP:</strong> Trifocal difractivo de superficie completa (85.7% eficiencia lumínica; pérdida del ~14%) con mayor tasa de halos nocturnos.',
+      ref: 'ZEISS AT LISA tri: Kohnen T et al. Am J Ophthalmol 2017; Acar & Tabakci 2021.'
+    },
+    eyhance: {
+      name: 'J&J TECNIS Eyhance',
+      url: 'https://www.jnjvisionpro.com/en-us/products/tecnis-eyhance/',
+      va: [0.21, 0.04, -0.05, 0.02, 0.09, 0.18, 0.29, 0.40, 0.49, 0.50],
+      note: '<strong>J&J TECNIS Eyhance:</strong> Monofocal mejorado. Aporta ~1 línea extra en intermedia (-1.5 D: ~0.18 logMAR) sobre monofocal estándar, sin alcance cercano.',
+      ref: 'J&J TECNIS Eyhance: US DFU (Z311769E) & DOF2021CT4006.'
+    },
+    symfony: {
+      name: 'J&J TECNIS Symfony',
+      url: 'https://www.jnjvisionpro.com/en-us/products/tecnis-symfony/',
+      va: [0.22, 0.05, -0.04, 0.00, 0.04, 0.10, 0.20, 0.31, 0.42, 0.50],
+      note: '<strong>J&J TECNIS Symfony:</strong> EDOF difractivo (echelette). Buen rango hasta -1.5 D, pero con mayores disfotopsias nocturnas que Galaxy y EMV.',
+      ref: 'J&J TECNIS Symfony: Rayner EMV Clinical Compendium.'
+    }
+  };
+
+  const state = { rayner: 'galaxy', comp: 'puresee', activeIdx: 5 };
+  const W = 920, H = 400;
+  const pad = { top: 42, right: 35, bottom: 50, left: 65 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  function getX(idx) { return pad.left + (idx / (diopters.length - 1)) * plotW; }
+  function getY(va) {
+    const c = Math.max(-0.10, Math.min(0.50, va));
+    return pad.top + ((c + 0.10) / 0.60) * plotH;
+  }
+  function toSnellen(va) { return '20/' + Math.round(20 * Math.pow(10, va)); }
+  function toDist(d) {
+    if (d > 0) return 'Hipermetropía (+D)';
+    if (d === 0) return 'Lejos (∞)';
+    return '~' + Math.round(100 / Math.abs(d)) + ' cm';
+  }
+
+  function smoothPath(pts) {
+    let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i === 0 ? i : i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+      const c1x = p1.x + (p2.x - p0.x) / 6;
+      const c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6;
+      const c2y = p2.y - (p3.y - p1.y) / 6;
+      d += ' C ' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ', ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ', ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
+    }
+    return d;
+  }
+
+  function renderChart() {
+    const svg = document.getElementById('defocus-svg');
+    const rData = raynerCurves[state.rayner];
+    const cData = compCurves[state.comp];
+
+    document.getElementById('leg-r').innerHTML = rData.name + ' <a href="' + rData.url + '" target="_blank" rel="noopener" class="ext-link">Web oficial ↗</a>';
+    document.getElementById('leg-c').innerHTML = cData.name + ' <a href="' + cData.url + '" target="_blank" rel="noopener" class="ext-link">Web oficial ↗</a>';
+
+    let html = '';
+    const yTop = getY(-0.10);
+    const yFunc = getY(0.20);
+    html += '<rect x="' + pad.left + '" y="' + yTop + '" width="' + plotW + '" height="' + (yFunc - yTop) + '" fill="rgba(16, 185, 129, 0.08)" />';
+    html += '<line x1="' + pad.left + '" y1="' + yFunc + '" x2="' + (W - pad.right) + '" y2="' + yFunc + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4" />';
+
+    [-0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach(function(val) {
+      const y = getY(val);
+      const z = val === 0.0;
+      html += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y + '" stroke="' + (z ? '#475569' : '#1e293b') + '" stroke-width="' + (z ? 1.5 : 1) + '" />';
+      html += '<text x="' + (pad.left - 12) + '" y="' + (y + 4) + '" fill="#94a3b8" font-size="12" text-anchor="end">' + val.toFixed(1) + '</text>';
+    });
+
+    html += '<text x="18" y="' + (pad.top + plotH / 2) + '" fill="#94a3b8" font-size="12" font-weight="bold" transform="rotate(-90, 18, ' + (pad.top + plotH / 2) + ')" text-anchor="middle">Agudeza Visual Binocular (logMAR)</text>';
+
+    diopters.forEach(function(d, idx) {
+      const x = getX(idx);
+      html += '<line x1="' + x + '" y1="' + pad.top + '" x2="' + x + '" y2="' + (H - pad.bottom) + '" stroke="#1e293b" stroke-width="1" />';
+      const lbl = d > 0 ? '+' + d.toFixed(1) : d.toFixed(1);
+      html += '<text x="' + x + '" y="' + (H - pad.bottom + 20) + '" fill="#cbd5e1" font-size="12" font-weight="600" text-anchor="middle">' + lbl + ' D</text>';
+      if (d === 0.0) html += '<text x="' + x + '" y="' + (pad.top - 14) + '" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">LEJOS (∞)</text>';
+      if (d === -1.5) html += '<text x="' + x + '" y="' + (pad.top - 14) + '" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">INTERMEDIA (67 cm)</text>';
+      if (d === -2.5) html += '<text x="' + x + '" y="' + (pad.top - 14) + '" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">CERCA (40 cm)</text>';
+    });
+
+    html += '<text x="' + (pad.left + plotW / 2) + '" y="' + (H - 8) + '" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle">Desenfoque (Dioptrías)</text>';
+
+    const rPts = rData.va.map(function(v, i) { return { x: getX(i), y: getY(v), va: v }; });
+    const cPts = cData.va.map(function(v, i) { return { x: getX(i), y: getY(v), va: v }; });
+    const rPath = smoothPath(rPts);
+    const cPath = smoothPath(cPts);
+
+    html += '<path d="' + rPath + ' L ' + rPts[rPts.length - 1].x + ' ' + (H - pad.bottom) + ' L ' + rPts[0].x + ' ' + (H - pad.bottom) + ' Z" fill="rgba(56, 189, 248, 0.09)" />';
+    html += '<path d="' + cPath + '" fill="none" stroke="#f59e0b" stroke-width="3.2" />';
+    cPts.forEach(function(p) { html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4.5" fill="#090d16" stroke="#f59e0b" stroke-width="2.5" />'; });
+
+    html += '<path d="' + rPath + '" fill="none" stroke="#38bdf8" stroke-width="3.8" />';
+    rPts.forEach(function(p) { html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="#005eb8" stroke="#38bdf8" stroke-width="2.5" />'; });
+
+    const actX = getX(state.activeIdx);
+    const actR = rPts[state.activeIdx];
+    const actC = cPts[state.activeIdx];
+    html += '<line x1="' + actX + '" y1="' + pad.top + '" x2="' + actX + '" y2="' + (H - pad.bottom) + '" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3,3" />';
+    html += '<circle cx="' + actC.x + '" cy="' + actC.y + '" r="7.5" fill="#f59e0b" stroke="#fff" stroke-width="2" />';
+    html += '<circle cx="' + actR.x + '" cy="' + actR.y + '" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2" />';
+
+    svg.innerHTML = html;
+
+    const dVal = diopters[state.activeIdx];
+    const dStr = dVal > 0 ? '+' + dVal.toFixed(1) + ' D' : dVal.toFixed(1) + ' D';
+    const diff = (actC.va - actR.va).toFixed(2);
+    const diffHtml = diff > 0
+      ? '<span style="color:#34d399;font-weight:700;">+' + diff + ' logMAR mejor Rayner</span>'
+      : (diff < 0 ? '<span style="color:#fbbf24;font-weight:700;">' + diff + ' logMAR mejor Comp.</span>' : '<span style="color:#94a3b8;">Empate óptico</span>');
+
+    document.getElementById('inspector-bar').innerHTML =
+      '<div><span style="color:#94a3b8;">Punto activo:</span> <strong>' + dStr + ' (' + toDist(dVal) + ')</strong></div>' +
+      '<div><span style="color:#38bdf8;font-weight:600;">Rayner:</span> <strong>' + actR.va.toFixed(2) + ' logMAR</strong> (' + toSnellen(actR.va) + ')</div>' +
+      '<div><span style="color:#f59e0b;font-weight:600;">Competencia:</span> <strong>' + actC.va.toFixed(2) + ' logMAR</strong> (' + toSnellen(actC.va) + ')</div>' +
+      '<div>' + diffHtml + '</div>';
+
+    document.getElementById('metrics-grid').innerHTML =
+      '<div class="metric-box"><div class="metric-label">Lejos (0.0 D / ∞)</div><div class="metric-vals"><span class="val-r">' + rData.va[2].toFixed(2) + ' logMAR</span> <span class="val-c">vs ' + cData.va[2].toFixed(2) + '</span></div><div class="metric-sub">Snellen: ' + toSnellen(rData.va[2]) + ' vs ' + toSnellen(cData.va[2]) + '</div></div>' +
+      '<div class="metric-box"><div class="metric-label">Intermedia (-1.0 D / 1 m)</div><div class="metric-vals"><span class="val-r">' + rData.va[4].toFixed(2) + ' logMAR</span> <span class="val-c">vs ' + cData.va[4].toFixed(2) + '</span></div><div class="metric-sub">Snellen: ' + toSnellen(rData.va[4]) + ' vs ' + toSnellen(cData.va[4]) + '</div></div>' +
+      '<div class="metric-box"><div class="metric-label">Intermedia (-1.5 D / 67 cm)</div><div class="metric-vals"><span class="val-r">' + rData.va[5].toFixed(2) + ' logMAR</span> <span class="val-c">vs ' + cData.va[5].toFixed(2) + '</span></div><div class="metric-sub">Snellen: ' + toSnellen(rData.va[5]) + ' vs ' + toSnellen(cData.va[5]) + '</div></div>' +
+      '<div class="metric-box"><div class="metric-label">Cerca (-2.5 D / 40 cm)</div><div class="metric-vals"><span class="val-r">' + rData.va[7].toFixed(2) + ' logMAR</span> <span class="val-c">vs ' + cData.va[7].toFixed(2) + '</span></div><div class="metric-sub">Snellen: ' + toSnellen(rData.va[7]) + ' vs ' + toSnellen(cData.va[7]) + '</div></div>';
+
+    document.getElementById('clinical-text').innerHTML = rData.note + '<br><br>' + cData.note;
+    document.getElementById('source-links').innerHTML =
+      '<a href="' + rData.url + '" target="_blank" rel="noopener" class="ext-link" style="border-color:var(--accent);color:var(--accent);">Ver curva original: ' + rData.name + ' ↗</a>' +
+      '<a href="' + cData.url + '" target="_blank" rel="noopener" class="ext-link" style="border-color:var(--comp);color:var(--comp);">Ver curva original: ' + cData.name + ' ↗</a>';
+    document.getElementById('ref-text').innerHTML = '<strong>Referencias clínicas:</strong><br>• ' + rData.ref + '<br>• ' + cData.ref;
+  }
+
+  const chartArea = document.getElementById('chart-area');
+  function handlePointer(clientX) {
+    const rect = chartArea.getBoundingClientRect();
+    const relX = ((clientX - rect.left) / rect.width) * W;
+    let closest = 0, minD = Infinity;
+    diopters.forEach(function(_, idx) {
+      const dist = Math.abs(getX(idx) - relX);
+      if (dist < minD) { minD = dist; closest = idx; }
+    });
+    if (state.activeIdx !== closest) { state.activeIdx = closest; renderChart(); }
+  }
+
+  chartArea.addEventListener('mousemove', function(e) { handlePointer(e.clientX); });
+  chartArea.addEventListener('touchmove', function(e) { e.preventDefault(); handlePointer(e.touches[0].clientX); }, { passive: false });
+  chartArea.addEventListener('touchstart', function(e) { handlePointer(e.touches[0].clientX); });
+
+  function bindButtons(id, key, cls) {
+    document.getElementById(id).querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.getElementById(id).querySelectorAll('button').forEach(function(b) { b.className = ''; });
+        btn.className = cls;
+        state[key] = btn.dataset.v;
+        renderChart();
+      });
+    });
+  }
+
+  bindButtons('btn-rayner', 'rayner', 'act-r');
+  bindButtons('btn-comp', 'comp', 'act-c');
+  renderChart();
+});
+</script>
+</body>
+</html>
