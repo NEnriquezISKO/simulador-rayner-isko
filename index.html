@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Simulador Óptico | RayOne Galaxy vs. Competencia</title>
+  <title>Simulador Comparativo Rayner vs. Competencia</title>
   <style>
     :root {
-      --primary: #005eb8;
+      --rayner-blue: #005eb8;
+      --rayner-light: #38bdf8;
       --dark: #090d16;
       --panel: #131b2e;
       --text: #f8fafc;
-      --accent: #38bdf8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -24,38 +24,39 @@
     }
 
     header {
-      padding: 1rem 2rem;
+      padding: 1rem 1.5rem;
       background: var(--panel);
       border-bottom: 1px solid #1e293b;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    header h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.4px; }
-    header span { color: var(--accent); font-weight: 700; }
+    header h1 { font-size: 1.15rem; font-weight: 600; }
+    header span { color: var(--rayner-light); font-weight: 700; }
 
     .main-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      max-width: 1180px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
       padding: 1.25rem;
-      gap: 1.2rem;
+      gap: 1.15rem;
     }
 
+    /* Visor Comparativo */
     .simulator-wrapper {
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      max-height: 560px;
+      max-height: 540px;
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
       user-select: none;
       touch-action: none;
       background: #0b1120;
@@ -69,11 +70,16 @@
       height: 100%;
     }
 
-    .sim-layer canvas {
+    .scene-content {
+      width: 100%;
+      height: 100%;
+      transition: filter 0.35s ease;
+    }
+
+    .scene-content svg {
       width: 100%;
       height: 100%;
       display: block;
-      transition: filter 0.35s ease;
     }
 
     #layer-rayner {
@@ -81,7 +87,8 @@
       z-index: 2;
     }
 
-    .halo-overlay {
+    /* Capa de Halos Nocturnos independiente para cada lente */
+    .halo-layer {
       position: absolute;
       inset: 0;
       pointer-events: none;
@@ -89,55 +96,50 @@
       transition: opacity 0.35s ease;
       mix-blend-mode: screen;
       background:
-        radial-gradient(circle at 33% 63%,
+        /* Faro izquierdo (X: 34%, Y: 62%) */
+        radial-gradient(circle at 34% 62%,
           rgba(255,255,255,0.95) 0%,
-          rgba(255,245,210,0.55) 2.5%,
+          rgba(255,245,210,0.5) 2.5%,
           rgba(255,210,130,0.12) 5%,
-          rgba(255,235,190,0.45) 6.5%,
+          rgba(255,235,190,0.42) 6.5%,
           rgba(255,200,100,0.08) 8.5%,
-          rgba(255,220,160,0.35) 10%,
+          rgba(255,220,160,0.32) 10%,
           rgba(255,180,80,0.05) 12.5%,
-          rgba(255,210,140,0.22) 14%,
+          rgba(255,210,140,0.2) 14%,
           transparent 19%),
-        radial-gradient(circle at 43% 63%,
+        /* Faro derecho (X: 44%, Y: 62%) */
+        radial-gradient(circle at 44% 62%,
           rgba(255,255,255,0.95) 0%,
-          rgba(255,245,210,0.55) 2.5%,
+          rgba(255,245,210,0.5) 2.5%,
           rgba(255,210,130,0.12) 5%,
-          rgba(255,235,190,0.45) 6.5%,
+          rgba(255,235,190,0.42) 6.5%,
           rgba(255,200,100,0.08) 8.5%,
-          rgba(255,220,160,0.35) 10%,
+          rgba(255,220,160,0.32) 10%,
           rgba(255,180,80,0.05) 12.5%,
-          rgba(255,210,140,0.22) 14%,
+          rgba(255,210,140,0.2) 14%,
           transparent 19%),
-        radial-gradient(circle at 22% 28%, rgba(255,240,190,0.75) 0%, rgba(255,210,130,0.28) 4%, transparent 11%),
-        radial-gradient(circle at 78% 28%, rgba(255,240,190,0.75) 0%, rgba(255,210,130,0.28) 4%, transparent 11%);
-    }
-
-    .halo-rayner {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      mix-blend-mode: screen;
-      background:
-        radial-gradient(circle at 33% 63%, rgba(255,255,255,0.3) 0%, rgba(255,240,210,0.06) 3.5%, transparent 8%),
-        radial-gradient(circle at 43% 63%, rgba(255,255,255,0.3) 0%, rgba(255,240,210,0.06) 3.5%, transparent 8%);
+        /* Luminarias viales */
+        radial-gradient(circle at 22% 28%, rgba(255,240,190,0.7) 0%, rgba(255,210,130,0.25) 4%, transparent 11%),
+        radial-gradient(circle at 78% 28%, rgba(255,240,190,0.7) 0%, rgba(255,210,130,0.25) 4%, transparent 11%);
     }
 
     .badge {
       position: absolute;
-      top: 16px;
-      padding: 8px 15px;
+      top: 14px;
+      padding: 7px 14px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       z-index: 4;
       backdrop-filter: blur(8px);
+      max-width: 44%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .badge-left { left: 16px; background: rgba(0, 94, 184, 0.92); color: #fff; border: 1px solid var(--accent); }
-    .badge-right { right: 16px; background: rgba(15, 23, 42, 0.92); color: #f1f5f9; border: 1px solid #64748b; }
+    .badge-left { left: 14px; background: rgba(0, 94, 184, 0.92); color: #fff; border: 1px solid var(--rayner-light); }
+    .badge-right { right: 14px; background: rgba(15, 23, 42, 0.92); color: #f1f5f9; border: 1px solid #64748b; }
 
     .slider-handle {
       position: absolute;
@@ -156,9 +158,9 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 46px;
-      height: 46px;
-      background: var(--primary);
+      width: 44px;
+      height: 44px;
+      background: var(--rayner-blue);
       border: 3px solid #fff;
       border-radius: 50%;
       display: flex;
@@ -169,453 +171,110 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.6);
     }
 
-    .controls-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1.5fr;
-      gap: 1.2rem;
+    /* Panel de Controles */
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
       background: var(--panel);
       padding: 1.25rem;
       border-radius: 12px;
       border: 1px solid #1e293b;
     }
 
-    @media (max-width: 900px) {
-      .controls-grid { grid-template-columns: 1fr; }
+    .lenses-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
     }
 
-    .control-group { display: flex; flex-direction: column; gap: 0.55rem; }
-    .control-group label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; font-weight: 700; }
+    @media (max-width: 850px) {
+      .lenses-row { grid-template-columns: 1fr; }
+    }
 
-    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .control-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .control-group label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .label-rayner { color: var(--rayner-light) !important; }
+
+    .btn-group { display: flex; gap: 0.45rem; flex-wrap: wrap; }
 
     button {
       flex: 1;
       min-width: fit-content;
-      padding: 0.65rem 0.85rem;
+      padding: 0.6rem 0.8rem;
       border: 1px solid #334155;
       background: #090d16;
       color: #cbd5e1;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 500;
       transition: all 0.2s;
     }
 
-    button:hover { border-color: var(--accent); color: #fff; }
+    button:hover { border-color: var(--rayner-light); color: #fff; }
     button.active {
-      background: var(--primary);
-      border-color: var(--accent);
+      background: var(--rayner-blue);
+      border-color: var(--rayner-light);
       color: #fff;
       font-weight: 600;
-      box-shadow: 0 0 12px rgba(0, 94, 184, 0.4);
     }
 
-    .info-bar {
-      font-size: 0.92rem;
-      line-height: 1.5;
+    button.active-comp {
+      background: #334155;
+      border-color: #94a3b8;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 850px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-card {
+      font-size: 0.88rem;
+      line-height: 1.45;
       color: #e2e8f0;
-      background: rgba(56, 189, 248, 0.08);
-      border-left: 4px solid var(--accent);
-      padding: 1rem 1.2rem;
-      border-radius: 0 8px 8px 0;
+      padding: 0.9rem 1.1rem;
+      border-radius: 8px;
+    }
+
+    .card-rayner {
+      background: rgba(0, 94, 184, 0.15);
+      border-left: 4px solid var(--rayner-light);
+    }
+
+    .card-comp {
+      background: rgba(148, 163, 184, 0.1);
+      border-left: 4px solid #64748b;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Simulador Óptico Comparativo | <span>Rayner RayOne Galaxy</span> vs. Competencia</h1>
+  <h1>Simulador Óptico | <span>Portafolio Rayner</span> vs. Competencia</h1>
 </header>
 
 <div class="main-container">
   <div class="simulator-wrapper" id="sim-box">
-    <div class="badge badge-left">Rayner RayOne Galaxy (Óptica Espiral)</div>
+    <div class="badge badge-left" id="rayner-label">Rayner RayOne Galaxy</div>
     <div class="badge badge-right" id="comp-label">Alcon Clareon PanOptix Pro</div>
 
     <!-- Capa Derecha: Competencia -->
     <div class="sim-layer" id="layer-comp">
-      <canvas id="canvas-comp" width="1280" height="720"></canvas>
-      <div class="halo-overlay" id="halo-comp"></div>
-    </div>
-
-    <!-- Capa Izquierda: Rayner -->
-    <div class="sim-layer" id="layer-rayner">
-      <canvas id="canvas-rayner" width="1280" height="720"></canvas>
-      <div class="halo-rayner" id="halo-rayner"></div>
-    </div>
-
-    <div class="slider-handle" id="slider-handle">
-      <div class="slider-button">↔</div>
-    </div>
-  </div>
-
-  <div class="controls-grid">
-    <div class="control-group">
-      <label>1. Escenario y Distancia Visual</label>
-      <div class="btn-group" id="scene-selector">
-        <button class="active" data-scene="night_drive">🚗 Conducción Nocturna (Lejos / Halos)</button>
-        <button data-scene="afternoon_pc">💻 Tarde: Computadora (Intermedia)</button>
-        <button data-scene="afternoon_book">📖 Tarde: Lectura Libro (Cerca)</button>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <label>2. Lente Intraocular a Comparar (Derecha)</label>
-      <div class="btn-group" id="lens-selector">
-        <button class="active" data-lens="panoptix">Clareon PanOptix Pro</button>
-        <button data-lens="atlisa">ZEISS AT LISA tri</button>
-        <button data-lens="synergy">TECNIS Synergy</button>
-        <button data-lens="vivity">Alcon Vivity</button>
-        <button data-lens="monofocal">Monofocal</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="info-bar" id="clinical-note"></div>
-</div>
-
-<script>
-  const state = {
-    scene: 'night_drive',
-    lens: 'panoptix'
-  };
-
-  function drawSceneOnCanvas(canvas, sceneType) {
-    const W = 1280, H = 720;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-
-    if (sceneType === 'night_drive') {
-      let sky = ctx.createLinearGradient(0, 0, 0, H * 0.55);
-      sky.addColorStop(0, '#040711');
-      sky.addColorStop(1, '#0f1b33');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, W, H * 0.55);
-
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      for (let i = 0; i < 45; i++) {
-        ctx.fillRect((i * 197) % W, (i * 83) % (H * 0.35), 2, 2);
-      }
-
-      ctx.fillStyle = '#111622';
-      ctx.fillRect(0, H * 0.55, W, H * 0.45);
-
-      ctx.fillStyle = '#1e293b';
-      ctx.beginPath();
-      ctx.moveTo(W * 0.42, H * 0.55);
-      ctx.lineTo(W * 0.58, H * 0.55);
-      ctx.lineTo(W * 0.95, H);
-      ctx.lineTo(W * 0.05, H);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 6;
-      ctx.setLineDash([35, 30]);
-      ctx.beginPath();
-      ctx.moveTo(W * 0.5, H * 0.56);
-      ctx.lineTo(W * 0.5, H);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Cartel vial reflectorizante
-      ctx.fillStyle = '#065f46';
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 4;
-      ctx.fillRect(W * 0.72, H * 0.36, 235, 95);
-      ctx.strokeRect(W * 0.72, H * 0.36, 235, 95);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px sans-serif';
-      ctx.fillText('RUTA 9  NORTE', W * 0.735, H * 0.415);
-      ctx.font = '18px sans-serif';
-      ctx.fillText('SALIDA 400 m  ↗', W * 0.735, H * 0.46);
-
-      // Postes de luz
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(W * 0.18, H * 0.55); ctx.lineTo(W * 0.18, H * 0.28); ctx.lineTo(W * 0.22, H * 0.28); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(W * 0.82, H * 0.55); ctx.lineTo(W * 0.82, H * 0.28); ctx.lineTo(W * 0.78, H * 0.28); ctx.stroke();
-
-      [ [W * 0.22, H * 0.28], [W * 0.78, H * 0.28] ].forEach(([lx, ly]) => {
-        let g = ctx.createRadialGradient(lx, ly, 2, lx, ly, 45);
-        g.addColorStop(0, '#fffbeb');
-        g.addColorStop(0.3, 'rgba(253, 224, 71, 0.55)');
-        g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(lx, ly, 45, 0, Math.PI * 2); ctx.fill();
-      });
-
-      // Auto de frente
-      ctx.fillStyle = '#090d16';
-      ctx.fillRect(W * 0.30, H * 0.56, W * 0.16, H * 0.11);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(W * 0.32, H * 0.52, W * 0.12, H * 0.05);
-
-      [ [W * 0.33, H * 0.63], [W * 0.43, H * 0.63] ].forEach(([fx, fy]) => {
-        let fg = ctx.createRadialGradient(fx, fy, 3, fx, fy, 55);
-        fg.addColorStop(0, '#ffffff');
-        fg.addColorStop(0.25, 'rgba(255, 250, 220, 0.85)');
-        fg.addColorStop(1, 'transparent');
-        ctx.fillStyle = fg;
-        ctx.beginPath(); ctx.arc(fx, fy, 55, 0, Math.PI * 2); ctx.fill();
-      });
-    } 
-    else if (sceneType === 'afternoon_pc') {
-      let roomBg = ctx.createLinearGradient(0, 0, W, H);
-      roomBg.addColorStop(0, '#cbd5e1');
-      roomBg.addColorStop(1, '#94a3b8');
-      ctx.fillStyle = roomBg;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.fillStyle = '#fef3c7';
-      ctx.fillRect(W * 0.06, H * 0.08, W * 0.25, H * 0.45);
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 8;
-      ctx.strokeRect(W * 0.06, H * 0.08, W * 0.25, H * 0.45);
-
-      ctx.fillStyle = '#78350f';
-      ctx.fillRect(0, H * 0.72, W, H * 0.28);
-
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(W * 0.24, H * 0.14, W * 0.52, H * 0.56);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(W * 0.26, H * 0.17, W * 0.48, H * 0.49);
-
-      ctx.fillStyle = '#005eb8';
-      ctx.fillRect(W * 0.26, H * 0.17, W * 0.48, H * 0.06);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillText('HISTORIA CLÍNICA OFTALMOLÓGICA — CONTROL POST-OP', W * 0.28, H * 0.21);
-
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 22px sans-serif';
-      ctx.fillText('Agudeza Visual Intermedia (60 cm):  20/20  (0.0 logMAR)', W * 0.28, H * 0.29);
-
-      ctx.fillStyle = '#334155';
-      ctx.font = '17px sans-serif';
-      const pcLines = [
-        '• Sensibilidad al contraste fotópica y mesópica conservada.',
-        '• Sin anillos difractivos ni escalones de transición óptica.',
-        '• Lectura cómoda de monitores, tabletas y tablero vehicular.',
-        '• Curva de desenfoque continua de lejos a cerca.'
-      ];
-      pcLines.forEach((line, idx) => {
-        ctx.fillText(line, W * 0.28, H * 0.35 + idx * 34);
-      });
-
-      const bars = [95, 92, 90, 88];
-      bars.forEach((val, idx) => {
-        ctx.fillStyle = idx === 0 ? '#005eb8' : '#38bdf8';
-        ctx.fillRect(W * 0.29 + idx * 110, H * 0.62 - val, 65, val);
-      });
-
-      ctx.fillStyle = '#64748b';
-      ctx.beginPath();
-      ctx.moveTo(W * 0.24, H * 0.70);
-      ctx.lineTo(W * 0.76, H * 0.70);
-      ctx.lineTo(W * 0.82, H * 0.76);
-      ctx.lineTo(W * 0.18, H * 0.76);
-      ctx.closePath();
-      ctx.fill();
-    } 
-    else if (sceneType === 'afternoon_book') {
-      let warmBg = ctx.createLinearGradient(0, 0, W, H);
-      warmBg.addColorStop(0, '#fde68a');
-      warmBg.addColorStop(1, '#d97706');
-      ctx.fillStyle = warmBg;
-      ctx.fillRect(0, 0, W, H);
-
-      ctx.fillStyle = '#451a03';
-      ctx.fillRect(0, H * 0.15, W, H * 0.85);
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.beginPath(); ctx.arc(W * 0.87, H * 0.30, 52, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#78350f';
-      ctx.beginPath(); ctx.arc(W * 0.87, H * 0.30, 42, 0, Math.PI * 2); ctx.fill();
-
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(W * 0.16, H * 0.14, W * 0.62, H * 0.76);
-
-      ctx.fillStyle = '#fffbeb';
-      ctx.fillRect(W * 0.18, H * 0.16, W * 0.285, H * 0.72);
-      ctx.fillStyle = '#fef3c7';
-      ctx.fillRect(W * 0.47, H * 0.16, W * 0.29, H * 0.72);
-
-      ctx.fillStyle = '#1e293b';
-      ctx.font = 'bold 21px Georgia, serif';
-      ctx.fillText('Capítulo IV — Óptica Espiral', W * 0.20, H * 0.23);
-
-      ctx.font = '16px Georgia, serif';
-      const leftText = [
-        'La luz incidente atraviesa una superficie',
-        'continua diseñada para distribuir el foco',
-        'sin interrupciones abruptas ni pérdida',
-        'de energía lumínica en cada distancia.',
-        '',
-        'Al eliminar los escalones difractivos,',
-        'el paciente logra leer letra impresa de',
-        'tamaño reducido (Jaeger 1) con total',
-        'naturalidad bajo iluminación de tarde,',
-        'manteniendo la nitidez y el contraste',
-        'en todo el rango visual cercano.'
-      ];
-      leftText.forEach((t, i) => ctx.fillText(t, W * 0.20, H * 0.29 + i * 32));
-
-      ctx.font = 'bold 18px Georgia, serif';
-      ctx.fillText('Prueba de Lectura Cercana (35 cm)', W * 0.49, H * 0.23);
-
-      ctx.font = '14px Georgia, serif';
-      const rightText = [
-        '• Tamaño J3: Visión cómoda de periódicos y revistas.',
-        '• Tamaño J2: Lectura fluida de libros y etiquetas.',
-        '• Tamaño J1: Letra chica de prospectos médicos.',
-        '',
-        'Con lentes monofocales o EDOF estándar,',
-        'esta página requiere el uso de gafas de',
-        'lectura (+2.00 D a +2.50 D) para enfocar',
-        'con claridad los caracteres pequeños.',
-        '',
-        'Deslizá la barra central hacia ambos lados',
-        'para comparar la nitidez de cada lente.'
-      ];
-      rightText.forEach((t, i) => ctx.fillText(t, W * 0.49, H * 0.29 + i * 32));
-    }
-  }
-
-  const lensProfiles = {
-    panoptix: {
-      badge: 'Alcon Clareon PanOptix Pro (Trifocal Difractivo)',
-      effects: {
-        night_drive: { blur: 0.7, contrast: 86, brightness: 94, halo: 0.85 },
-        afternoon_pc: { blur: 1.5, contrast: 92, brightness: 97, halo: 0 },
-        afternoon_book: { blur: 0.4, contrast: 92, brightness: 97, halo: 0 }
-      },
-      notes: {
-        night_drive: '<strong>Conducción Nocturna (PanOptix Pro vs. Galaxy):</strong> Los anillos difractivos de PanOptix Pro generan halos concéntricos y glare alrededor de los faros, además de una leve reducción en sensibilidad al contraste. La óptica espiral continua de Galaxy minimiza estas disfotopsias.',
-        afternoon_pc: '<strong>Computadora / Intermedia (PanOptix Pro vs. Galaxy):</strong> En la curva de desenfoque comparativa, PanOptix presenta una caída ("valle") en distancia intermedia (-1.0 D, 0.11 logMAR), lo que suaviza el texto en pantalla frente a la meseta continua de RayOne Galaxy.',
-        afternoon_book: '<strong>Lectura de Libro / Cerca (PanOptix Pro vs. Galaxy):</strong> PanOptix Pro recupera un pico trifocal marcado en lectura cercana (-2.0 D), ofreciendo muy buena nitidez de cerca al igual que Galaxy, aunque con menor contraste relativo por la división de luz.'
-      }
-    },
-    atlisa: {
-      badge: 'ZEISS AT LISA tri 839MP (Trifocal Difractivo)',
-      effects: {
-        night_drive: { blur: 0.8, contrast: 84, brightness: 92, halo: 0.92 },
-        afternoon_pc: { blur: 2.0, contrast: 90, brightness: 95, halo: 0 },
-        afternoon_book: { blur: 0.55, contrast: 90, brightness: 95, halo: 0 }
-      },
-      notes: {
-        night_drive: '<strong>Conducción Nocturna (ZEISS AT LISA tri vs. Galaxy):</strong> Alta presencia de anillos difractivos nocturnos y pérdida lumínica cercana al 14% en AT LISA tri, frente al aprovechamiento continuo de luz de RayOne Galaxy.',
-        afternoon_pc: '<strong>Computadora / Intermedia (ZEISS AT LISA tri vs. Galaxy):</strong> AT LISA tri ubica su foco intermedio a 80 cm (más lejos que la distancia habitual de una laptop a 55-60 cm), generando mayor desenfoque en pantalla que RayOne Galaxy.',
-        afternoon_book: '<strong>Lectura de Libro / Cerca (ZEISS AT LISA tri vs. Galaxy):</strong> Buen desempeño en lectura cercana a 40 cm, aunque con menor contraste y brillo que la óptica no difractiva de Galaxy.'
-      }
-    },
-    synergy: {
-      badge: 'J&J TECNIS Synergy (Híbrido EDOF + Multifocal)',
-      effects: {
-        night_drive: { blur: 0.95, contrast: 82, brightness: 91, halo: 1.0 },
-        afternoon_pc: { blur: 0.7, contrast: 89, brightness: 95, halo: 0 },
-        afternoon_book: { blur: 0.3, contrast: 89, brightness: 95, halo: 0 }
-      },
-      notes: {
-        night_drive: '<strong>Conducción Nocturna (TECNIS Synergy vs. Galaxy):</strong> Synergy es conocido clínicamente por generar halos y starbursts nocturnos muy marcados y caída de contraste en baja luz. Galaxy ofrece una conducción nocturna mucho más limpia.',
-        afternoon_pc: '<strong>Computadora / Intermedia (TECNIS Synergy vs. Galaxy):</strong> Rango continuo sólido en distancia intermedia, aunque con ligera pérdida de contraste frente a RayOne Galaxy.',
-        afternoon_book: '<strong>Lectura de Libro / Cerca (TECNIS Synergy vs. Galaxy):</strong> Excelente alcance cercano (hasta 33 cm), equiparable en nitidez de lectura a Galaxy en condiciones de buena luz de tarde.'
-      }
-    },
-    vivity: {
-      badge: 'Alcon Clareon Vivity (EDOF No Difractivo)',
-      effects: {
-        night_drive: { blur: 0.2, contrast: 93, brightness: 98, halo: 0.22 },
-        afternoon_pc: { blur: 0.45, contrast: 95, brightness: 98, halo: 0 },
-        afternoon_book: { blur: 3.3, contrast: 95, brightness: 98, halo: 0 }
-      },
-      notes: {
-        night_drive: '<strong>Conducción Nocturna (Alcon Vivity vs. Galaxy):</strong> Al ser ambos lentes no difractivos, tanto Vivity como Galaxy ofrecen un perfil muy bajo de halos nocturnos y excelente calidad de visión al conducir.',
-        afternoon_pc: '<strong>Computadora / Intermedia (Alcon Vivity vs. Galaxy):</strong> Muy buen rendimiento de Vivity en distancia intermedia de computadora, comparable con RayOne Galaxy.',
-        afternoon_book: '<strong>Lectura de Libro / Cerca (Alcon Vivity vs. Galaxy):</strong> Aquí radica la mayor diferencia: Vivity es un EDOF que pierde nitidez en letra chica de cerca (requiriendo gafas para lectura prolongada), mientras RayOne Galaxy mantiene el texto nítido.'
-      }
-    },
-    monofocal: {
-      badge: 'Lente Monofocal Asférico Estándar',
-      effects: {
-        night_drive: { blur: 0.0, contrast: 100, brightness: 100, halo: 0.12 },
-        afternoon_pc: { blur: 3.0, contrast: 100, brightness: 100, halo: 0 },
-        afternoon_book: { blur: 5.5, contrast: 100, brightness: 100, halo: 0 }
-      },
-      notes: {
-        night_drive: '<strong>Conducción Nocturna (Monofocal vs. Galaxy):</strong> Máxima nitidez lejana y mínimo nivel de halos en ambos; RayOne Galaxy logra acercarse al estándar monofocal nocturno sin sacrificar visión cercana.',
-        afternoon_pc: '<strong>Computadora / Intermedia (Monofocal vs. Galaxy):</strong> El monofocal enfocado para lejos desenfoca la pantalla de la computadora, obligando a alejarse o usar gafas intermedias.',
-        afternoon_book: '<strong>Lectura de Libro / Cerca (Monofocal vs. Galaxy):</strong> Desenfoque total en lectura cercana con monofocal estándar frente a la independencia de gafas que proporciona RayOne Galaxy.'
-      }
-    }
-  };
-
-  const simBox = document.getElementById('sim-box');
-  const layerRayner = document.getElementById('layer-rayner');
-  const sliderHandle = document.getElementById('slider-handle');
-  const canvasRayner = document.getElementById('canvas-rayner');
-  const canvasComp = document.getElementById('canvas-comp');
-  const haloComp = document.getElementById('halo-comp');
-  const haloRayner = document.getElementById('halo-rayner');
-  const compLabel = document.getElementById('comp-label');
-  const clinicalNote = document.getElementById('clinical-note');
-
-  let isDragging = false;
-
-  function updateSlider(clientX) {
-    const rect = simBox.getBoundingClientRect();
-    let x = clientX - rect.left;
-    if (x < 0) x = 0;
-    if (x > rect.width) x = rect.width;
-    const percent = (x / rect.width) * 100;
-    
-    layerRayner.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
-    sliderHandle.style.left = `${percent}%`;
-  }
-
-  simBox.addEventListener('mousedown', () => isDragging = true);
-  window.addEventListener('mouseup', () => isDragging = false);
-  window.addEventListener('mousemove', (e) => { if (isDragging) updateSlider(e.clientX); });
-
-  simBox.addEventListener('touchstart', (e) => { isDragging = true; updateSlider(e.touches[0].clientX); });
-  window.addEventListener('touchend', () => isDragging = false);
-  window.addEventListener('touchmove', (e) => { if (isDragging) updateSlider(e.touches[0].clientX); });
-
-  function renderSimulation() {
-    const profile = lensProfiles[state.lens];
-    const currentEffect = profile.effects[state.scene];
-
-    compLabel.textContent = profile.badge;
-
-    drawSceneOnCanvas(canvasRayner, state.scene);
-    drawSceneOnCanvas(canvasComp, state.scene);
-
-    canvasRayner.style.filter = 'blur(0px) contrast(100%) brightness(100%)';
-    haloRayner.style.opacity = state.scene === 'night_drive' ? 0.25 : 0;
-
-    canvasComp.style.filter = `blur(${currentEffect.blur}px) contrast(${currentEffect.contrast}%) brightness(${currentEffect.brightness}%)`;
-    haloComp.style.opacity = currentEffect.halo;
-
-    clinicalNote.innerHTML = profile.notes[state.scene];
-  }
-
-  function setupButtons(groupId, stateKey) {
-    const group = document.getElementById(groupId);
-    group.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state[stateKey] = btn.dataset[stateKey];
-        renderSimulation();
-      });
-    });
-  }
-
-  setupButtons('scene-selector', 'scene');
-  setupButtons('lens-selector', 'lens');
-
-  renderSimulation();
-</script>
-</body>
-</html>
+      <div class="scene-content" id="scene-comp"></div>
+      <div
