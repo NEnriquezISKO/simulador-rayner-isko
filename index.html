@@ -82,7 +82,9 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.25rem;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
     }
 
     .chart-top {
@@ -91,41 +93,54 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 0.75rem;
-      margin-bottom: 0.75rem;
     }
 
-    .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; font-weight: 600; }
+    .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.85rem; font-weight: 600; align-items: center; }
     .legend-item { display: flex; align-items: center; gap: 0.45rem; }
-    .line-sample-r { width: 22px; height: 3px; background: var(--rayner-bright); border-radius: 2px; }
-    .line-sample-c { width: 22px; height: 3px; background: var(--comp); border-radius: 2px; }
+    .line-sample-r { width: 22px; height: 3px; background: var(--rayner-bright); border-radius: 2px; flex-shrink: 0; }
+    .line-sample-c { width: 22px; height: 3px; background: var(--comp); border-radius: 2px; flex-shrink: 0; }
+
+    .ext-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: #090d16;
+      border: 1px solid #334155;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ext-link:hover { color: #fff; border-color: var(--rayner-bright); background: rgba(56, 189, 248, 0.12); }
+
+    /* Barra fija de lectura del cursor (ya no tapa el gráfico) */
+    .inspector-bar {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+    .inspector-item { display: flex; align-items: center; gap: 0.45rem; }
 
     .svg-wrapper {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 7.5;
-      min-height: 310px;
+      aspect-ratio: 16 / 7.2;
+      min-height: 300px;
       touch-action: none;
       user-select: none;
     }
 
     svg { width: 100%; height: 100%; display: block; overflow: visible; }
-
-    .tooltip {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(9, 13, 22, 0.94);
-      border: 1px solid #334155;
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      font-size: 0.82rem;
-      pointer-events: none;
-      backdrop-filter: blur(8px);
-      min-width: 245px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .tooltip-title { font-weight: 700; color: #fff; margin-bottom: 0.35rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.25rem; }
-    .tooltip-row { display: flex; justify-content: space-between; gap: 1rem; margin: 0.2rem 0; }
 
     .metrics-grid {
       display: grid;
@@ -148,24 +163,19 @@
     .clinical-summary {
       background: rgba(56, 189, 248, 0.08);
       border-left: 4px solid var(--rayner-bright);
-      padding: 0.95rem 1.15rem;
+      padding: 1rem 1.2rem;
       border-radius: 0 8px 8px 0;
       font-size: 0.88rem;
       line-height: 1.5;
       color: #e2e8f0;
     }
-    .badge-source {
-      display: inline-block;
-      font-size: 0.7rem;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: #1e293b;
-      color: #94a3b8;
-      margin-left: 6px;
-      vertical-align: middle;
-      font-weight: 600;
+    .source-links-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
     }
-    .ref-text { font-size: 0.74rem; color: #94a3b8; margin-top: 0.6rem; line-height: 1.45; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.5rem; }
+    .ref-text { font-size: 0.74rem; color: #94a3b8; margin-top: 0.65rem; line-height: 1.45; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 0.55rem; }
   </style>
 </head>
 <body>
@@ -206,62 +216,60 @@
   <div class="chart-card">
     <div class="chart-top">
       <div class="legend">
-        <div class="legend-item"><span class="line-sample-r"></span> <span id="leg-r">RayOne Galaxy</span></div>
-        <div class="legend-item"><span class="line-sample-c"></span> <span id="leg-c">J&J TECNIS PureSee</span></div>
+        <div class="legend-item"><span class="line-sample-r"></span> <span id="leg-r"></span></div>
+        <div class="legend-item"><span class="line-sample-c"></span> <span id="leg-c"></span></div>
       </div>
       <div style="font-size: 0.78rem; color: #34d399; font-weight: 600;">■ Zona funcional ≤ 0.20 logMAR (20/32 o mejor)</div>
     </div>
 
+    <!-- Barra fija de lectura del punto seleccionado (sin obstruir el gráfico) -->
+    <div class="inspector-bar" id="inspector-bar"></div>
+
     <div class="svg-wrapper" id="chart-area">
       <svg id="defocus-svg" viewBox="0 0 920 400" preserveAspectRatio="none"></svg>
-      <div class="tooltip" id="tooltip"></div>
     </div>
   </div>
 
   <!-- Métricas Clave -->
   <div class="metrics-grid" id="metrics-grid"></div>
 
-  <!-- Análisis Clínico y Referencias -->
+  <!-- Análisis Clínico, Enlaces Oficiales y Referencias -->
   <div class="clinical-summary">
     <div id="clinical-text"></div>
+    <div class="source-links-row" id="source-links"></div>
     <div class="ref-text" id="ref-text"></div>
   </div>
 </div>
 
 <script>
-// Eje X estándar de desenfoque (Dioptrías de +1.0 D a -3.5 D en pasos de 0.5 D)
 const diopters = [1.0, 0.5, 0.0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0, -3.5];
 
 // PORTAFOLIO RAYNER (Curva Azul - Binocular)
 const raynerCurves = {
   galaxy: {
-    name: 'RayOne Galaxy (Óptica Espiral IA)',
-    sourceType: 'Estudio Binocular Publicado (n=25)',
-    // Abela-Formanek et al., J Refract Surg 2025 (curva oficial Rayner Global)
+    name: 'RayOne Galaxy',
+    url: 'https://rayner.com/global/en/iol/galaxy/',
     va: [0.20, 0.05, -0.05, -0.02, 0.01, 0.02, 0.05, 0.12, 0.23, 0.35],
     note: '<strong>RayOne Galaxy:</strong> Óptica espiral no difractiva con 0% de pérdida lumínica. Ofrece un rango continuo de lejos a cerca sin valles intermedios y minimiza las disfotopsias nocturnas.',
     ref: 'RayOne Galaxy: Abela-Formanek C et al. Performance of the First Spiral Refractive Intraocular Lens for Continuous Full Range of Vision. J Refract Surg. 2025;41(11):e1213-e1222.'
   },
   trifocal: {
-    name: 'RayOne Trifocal (Difractivo 16 anillos)',
-    sourceType: 'Estudio Clínico Binocular',
-    // Ferreira & Ribeiro JCRS 2019 (adición intermedia +1.63 D, cercana +3.25 D, 89% transmisión)
+    name: 'RayOne Trifocal',
+    url: 'https://rayner.com/global/en/iol/trifocal/',
     va: [0.22, 0.06, -0.04, 0.03, 0.08, 0.05, 0.03, 0.06, 0.18, 0.32],
     note: '<strong>RayOne Trifocal:</strong> Diseño difractivo patentado de 16 anillos (89% de transmisión lumínica a pupila de 3 mm; solo 11% de pérdida). Menor incidencia de fenómenos fóticos frente a FineVision y PanOptix.',
     ref: 'RayOne Trifocal: Ferreira TB & Ribeiro FJ. J Refract Surg. 2019;35(7):418-425; Rayner Data on File 2021.'
   },
   emv: {
-    name: 'RayOne EMV (Objetivo Emetropía)',
-    sourceType: 'Gráfica Oficial Rayner (Digitalizada)',
-    // Digitalizado de gráfica oficial Rayner EMV (vs Vivity / Symfony / Eyhance)
+    name: 'RayOne EMV (Emetropía)',
+    url: 'https://rayner.com/global/en/iol/rayone-emv/',
     va: [0.16, 0.02, -0.05, -0.01, 0.04, 0.11, 0.21, 0.32, 0.43, 0.50],
     note: '<strong>RayOne EMV (Emetropía):</strong> Lente no difractivo diseñado junto al Prof. Graham Barrett. Proporciona hasta 1.5 D de rango extendido continuo con sensibilidad al contraste y perfil de disfotopsias de nivel monofocal.',
     ref: 'RayOne EMV: Rayner Clinical Data (RDTR 1937); Estudio multicéntrico en 8 países (56 pacientes / 89 ojos).'
   },
   emv_mono: {
     name: 'RayOne EMV (Monovisión -1.5 D)',
-    sourceType: 'Gráfica Oficial Rayner (Digitalizada)',
-    // Digitalizado de gráfica oficial Rayner EMV con offset -1.5 D
+    url: 'https://rayner.com/global/en/iol/rayone-emv/',
     va: [0.18, 0.03, -0.04, -0.01, 0.02, 0.04, 0.08, 0.14, 0.24, 0.36],
     note: '<strong>RayOne EMV (Monovisión -1.5 D):</strong> Al aplicar un offset modesto de -1.5 D en el ojo cercano, la aberración esférica positiva genera una zona de fusión binocular continua desde lejos hasta lectura cercana sin halos difractivos.',
     ref: 'RayOne EMV Monovisión: Rayner Global Clinical Guidelines (Prof. Graham Barrett).'
@@ -271,265 +279,14 @@ const raynerCurves = {
 // PORTAFOLIO COMPETENCIA (Curva Naranja - Homologado a Binocular)
 const compCurves = {
   puresee: {
-    name: 'J&J TECNIS PureSee (EDOF Refractivo)',
-    sourceType: 'Promedio Ponderado Binocular (4 estudios)',
-    // Corbett 2024, Hassel 2024, Tandogan 2024, Boccuzzi 2024
+    name: 'J&J TECNIS PureSee',
+    url: 'https://www.jnjvisionpro.com/en-us/products/tecnis-puresee/',
     va: [0.21, 0.04, -0.05, -0.01, 0.04, 0.10, 0.19, 0.29, 0.40, 0.49],
     note: '<strong>J&J TECNIS PureSee:</strong> EDOF puramente refractivo con bajo nivel de halos, pero su rango funcional se atenúa a partir de -1.5 D / -2.0 D, ofreciendo menor agudeza cercana que RayOne Galaxy.',
     ref: 'J&J PureSee: Promedio ponderado de Corbett et al. 2024 (Eye), Hassel O. ESCRS 2024, Tandogan et al. ESCRS 2024, Boccuzzi et al. ESCRS 2024.'
   },
   panoptix: {
     name: 'Alcon Clareon / AcrySof PanOptix',
-    sourceType: 'Promedio Ponderado Binocular (4 estudios)',
-    // Modi 2021, Böhm 2019, Kohnen 2017, Ferreira 2022
+    url: 'https://www.myalcon.com/ar/professional/cataract-surgery/iols/panoptix/',
     va: [0.21, 0.03, -0.06, 0.03, 0.11, 0.04, 0.00, 0.03, 0.16, 0.30],
-    note: '<strong>Alcon PanOptix:</strong> Trifocal difractivo (88% eficiencia lumínica) con foco intermedio a 60 cm y cercano a 40 cm. Presenta una caída ("valle") en -1.0 D (0.11 logMAR) y disfotopsias nocturnas por sus anillos difractivos.',
-    ref: 'Alcon PanOptix: Promedio ponderado de PanOptix IFU, Mendicute J et al. 2024, Ferreira T et al. 2022, Ribeiro F & Ferreira TB 2020.'
-  },
-  vivity: {
-    name: 'Alcon Clareon / AcrySof Vivity',
-    sourceType: 'Promedio Ponderado Binocular (4 estudios)',
-    // Vivity IFU, Shafer 2022, Kandavel 2023, Savini 2025
-    va: [0.22, 0.05, -0.03, 0.01, 0.06, 0.13, 0.23, 0.34, 0.44, 0.50],
-    note: '<strong>Alcon Vivity:</strong> EDOF no difractivo (tecnología X-WAVE). Mantiene bajo perfil de halos similar a RayOne EMV, pero cae por debajo de 0.20 logMAR a partir de -1.75 D, requiriendo gafas para lectura fina.',
-    ref: 'Alcon Vivity: Promedio ponderado de Vivity IFU, Shafer et al. 2022, Kandavel et al. 2023, Savini et al. 2025.'
-  },
-  atlara: {
-    name: 'ZEISS AT LARA 829MP (EDOF Difractivo)',
-    sourceType: 'Promedio Ponderado Binocular (4 estudios)',
-    // Homologado a binocular (Reinhard 2020, Moore 2024, Ivellio-Vellin 2024, Ganesh 2021)
-    va: [0.21, 0.05, -0.03, 0.01, 0.05, 0.11, 0.21, 0.32, 0.42, 0.49],
-    note: '<strong>ZEISS AT LARA 829MP:</strong> EDOF difractivo (perfil SMP). En evaluación binocular mantiene visión funcional (≤ 0.20 logMAR) hasta ~ -1.8 D, pero con menor agudeza que RayOne Galaxy en todo el espectro y mayor incidencia de halos difractivos.',
-    ref: 'ZEISS AT LARA: Promedio ponderado binocular de Reinhard T et al. 2020, Moore J et al. 2024, Ivellio-Vellin H et al. 2024, Ganesh S et al. 2021.'
-  },
-  atlisa: {
-    name: 'ZEISS AT LISA tri 839MP (Trifocal)',
-    sourceType: 'Estudio Clínico Binocular (Kohnen / Acar)',
-    // Homologado a binocular (Kohnen et al. 2017 & Acar & Tabakci 2021)
-    va: [0.22, 0.05, -0.04, 0.03, 0.10, 0.05, 0.03, 0.07, 0.19, 0.33],
-    note: '<strong>ZEISS AT LISA tri 839MP:</strong> Trifocal difractivo de superficie completa (85.7% eficiencia lumínica; adiciones +1.66 D y +3.33 D). Presenta pérdida lumínica del ~14% y mayor tasa de halos nocturnos.',
-    ref: 'ZEISS AT LISA tri: Kohnen T et al. Am J Ophthalmol 2017; Acar & Tabakci. Int Ophthalmol 2021 (DOI: 10.1007/s10792-021-01970-3).'
-  },
-  eyhance: {
-    name: 'J&J TECNIS Eyhance (Monofocal Mejorado)',
-    sourceType: 'Gráfica Oficial J&J / DFU (Digitalizada)',
-    // Digitalizado según DFU oficial J&J (+1 línea / 0.10 logMAR a -1.5 D vs monofocal)
-    va: [0.21, 0.04, -0.05, 0.02, 0.09, 0.18, 0.29, 0.40, 0.49, 0.50],
-    note: '<strong>J&J TECNIS Eyhance:</strong> Monofocal mejorado con aumento continuo de potencia central. Aporta ~1 línea extra en intermedia (-1.5 D: ~0.18 logMAR) frente a un monofocal estándar, pero sin alcance cercano funcional.',
-    ref: 'J&J TECNIS Eyhance: TECNIS Eyhance US DFU (Z311769E) & Data on File DOF2021CT4006.'
-  },
-  symfony: {
-    name: 'J&J TECNIS Symfony (EDOF Difractivo)',
-    sourceType: 'Gráfica Comparativa Rayner EMV',
-    // Digitalizado de comparativa oficial Rayner EMV vs Symfony
-    va: [0.22, 0.05, -0.04, 0.00, 0.04, 0.10, 0.20, 0.31, 0.42, 0.50],
-    note: '<strong>J&J TECNIS Symfony:</strong> EDOF difractivo (echelette). Ofrece buen rango intermedio hasta -1.5 D, pero con mayor incidencia de halos/starbursts nocturnos que los diseños no difractivos (Galaxy y EMV).',
-    ref: 'J&J TECNIS Symfony: Datos clínicos comparativos publicados en Rayner EMV Clinical Compendium.'
-  }
-};
-
-const state = { rayner: 'galaxy', comp: 'puresee', activeIdx: 5 };
-
-const W = 920, H = 400;
-const pad = { top: 45, right: 35, bottom: 50, left: 65 };
-const plotW = W - pad.left - pad.right;
-const plotH = H - pad.top - pad.bottom;
-
-function getX(idx) {
-  return pad.left + (idx / (diopters.length - 1)) * plotW;
-}
-
-function getY(va) {
-  const minVA = -0.10, maxVA = 0.50;
-  const clamped = Math.max(minVA, Math.min(maxVA, va));
-  return pad.top + ((clamped - minVA) / (maxVA - minVA)) * plotH;
-}
-
-function logMARtoSnellen(va) {
-  const denom = Math.round(20 * Math.pow(10, va));
-  return `20/${denom}`;
-}
-
-function diopterToDist(d) {
-  if (d > 0) return 'Hipermetropía (+D)';
-  if (d === 0) return 'Lejos (∞)';
-  const cm = Math.round(100 / Math.abs(d));
-  return `~${cm} cm`;
-}
-
-function buildSmoothPath(points) {
-  if (points.length === 0) return '';
-  let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i === 0 ? i : i - 1];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
-
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-    d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-  }
-  return d;
-}
-
-function renderChart() {
-  const svg = document.getElementById('defocus-svg');
-  const rData = raynerCurves[state.rayner];
-  const cData = compCurves[state.comp];
-
-  document.getElementById('leg-r').innerHTML = `${rData.name} <span class="badge-source">${rData.sourceType}</span>`;
-  document.getElementById('leg-c').innerHTML = `${cData.name} <span class="badge-source">${cData.sourceType}</span>`;
-
-  let html = '';
-
-  const yTop = getY(-0.10);
-  const yFunc = getY(0.20);
-  html += `<rect x="${pad.left}" y="${yTop}" width="${plotW}" height="${yFunc - yTop}" fill="rgba(16, 185, 129, 0.08)" />`;
-  html += `<line x1="${pad.left}" y1="${yFunc}" x2="${W - pad.right}" y2="${yFunc}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4" />`;
-
-  const yTicks = [-0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5];
-  yTicks.forEach(val => {
-    const y = getY(val);
-    const isZero = val === 0.0;
-    html += `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="${isZero ? '#475569' : '#1e293b'}" stroke-width="${isZero ? 1.5 : 1}" />`;
-    html += `<text x="${pad.left - 12}" y="${y + 4}" fill="#94a3b8" font-size="12" text-anchor="end">${val.toFixed(1)}</text>`;
-  });
-
-  html += `<text x="18" y="${pad.top + plotH / 2}" fill="#94a3b8" font-size="12" font-weight="bold" transform="rotate(-90, 18, ${pad.top + plotH / 2})" text-anchor="middle">Agudeza Visual Binocular (logMAR)</text>`;
-
-  diopters.forEach((d, idx) => {
-    const x = getX(idx);
-    html += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${H - pad.bottom}" stroke="#1e293b" stroke-width="1" />`;
-    const labelD = d > 0 ? `+${d.toFixed(1)}` : d.toFixed(1);
-    html += `<text x="${x}" y="${H - pad.bottom + 20}" fill="#cbd5e1" font-size="12" font-weight="600" text-anchor="middle">${labelD} D</text>`;
-
-    if (d === 0.0) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">LEJOS (∞)</text>`;
-    if (d === -1.5) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">INTERMEDIA (67 cm)</text>`;
-    if (d === -2.5) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">CERCA (40 cm)</text>`;
-  });
-
-  html += `<text x="${pad.left + plotW / 2}" y="${H - 8}" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle">Desenfoque (Dioptrías)</text>`;
-
-  const rPts = rData.va.map((v, i) => ({ x: getX(i), y: getY(v), va: v }));
-  const cPts = cData.va.map((v, i) => ({ x: getX(i), y: getY(v), va: v }));
-
-  const rPath = buildSmoothPath(rPts);
-  const cPath = buildSmoothPath(cPts);
-  const areaPath = `${rPath} L ${rPts[rPts.length - 1].x} ${H - pad.bottom} L ${rPts[0].x} ${H - pad.bottom} Z`;
-  html += `<path d="${areaPath}" fill="rgba(56, 189, 248, 0.09)" />`;
-
-  html += `<path d="${cPath}" fill="none" stroke="#f59e0b" stroke-width="3.2" />`;
-  cPts.forEach(p => {
-    html += `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#090d16" stroke="#f59e0b" stroke-width="2.5" />`;
-  });
-
-  html += `<path d="${rPath}" fill="none" stroke="#38bdf8" stroke-width="3.8" />`;
-  rPts.forEach(p => {
-    html += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#005eb8" stroke="#38bdf8" stroke-width="2.5" />`;
-  });
-
-  const actX = getX(state.activeIdx);
-  const actR = rPts[state.activeIdx];
-  const actC = cPts[state.activeIdx];
-
-  html += `<line x1="${actX}" y1="${pad.top}" x2="${actX}" y2="${H - pad.bottom}" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="3,3" />`;
-  html += `<circle cx="${actC.x}" cy="${actC.y}" r="7.5" fill="#f59e0b" stroke="#fff" stroke-width="2" />`;
-  html += `<circle cx="${actR.x}" cy="${actR.y}" r="8" fill="#38bdf8" stroke="#fff" stroke-width="2" />`;
-
-  svg.innerHTML = html;
-
-  const dVal = diopters[state.activeIdx];
-  const dStr = dVal > 0 ? `+${dVal.toFixed(1)} D` : `${dVal.toFixed(1)} D`;
-  const diff = (actC.va - actR.va).toFixed(2);
-  const diffLabel = diff > 0 ? `<span style="color:#34d399">+${diff} logMAR mejor Rayner</span>` : (diff < 0 ? `<span style="color:#fbbf24">${diff} logMAR mejor Comp.</span>` : 'Empate óptico');
-
-  document.getElementById('tooltip').innerHTML = `
-    <div class="tooltip-title">Desenfoque: ${dStr} (${diopterToDist(dVal)})</div>
-    <div class="tooltip-row"><span style="color:#38bdf8;font-weight:600;">Rayner:</span> <span><strong>${actR.va.toFixed(2)}</strong> (${logMARtoSnellen(actR.va)})</span></div>
-    <div class="tooltip-row"><span style="color:#f59e0b;font-weight:600;">Competencia:</span> <span><strong>${actC.va.toFixed(2)}</strong> (${logMARtoSnellen(actC.va)})</span></div>
-    <div class="tooltip-row" style="margin-top:0.35rem;border-top:1px solid #1e293b;padding-top:0.25rem;"><span>Diferencia:</span> ${diffLabel}</div>
-  `;
-
-  const idxFar = 2;   // 0.0 D
-  const idxInt1 = 4;  // -1.0 D
-  const idxInt2 = 5;  // -1.5 D
-  const idxNear = 7;  // -2.5 D
-
-  document.getElementById('metrics-grid').innerHTML = `
-    <div class="metric-box">
-      <div class="metric-label">Lejos (0.0 D / ∞)</div>
-      <div class="metric-vals"><span class="val-r">${rData.va[idxFar].toFixed(2)} logMAR</span> <span class="val-c">vs ${cData.va[idxFar].toFixed(2)}</span></div>
-      <div class="metric-sub">Snellen: ${logMARtoSnellen(rData.va[idxFar])} vs ${logMARtoSnellen(cData.va[idxFar])}</div>
-    </div>
-    <div class="metric-box">
-      <div class="metric-label">Intermedia (-1.0 D / 1 m)</div>
-      <div class="metric-vals"><span class="val-r">${rData.va[idxInt1].toFixed(2)} logMAR</span> <span class="val-c">vs ${cData.va[idxInt1].toFixed(2)}</span></div>
-      <div class="metric-sub">Snellen: ${logMARtoSnellen(rData.va[idxInt1])} vs ${logMARtoSnellen(cData.va[idxInt1])}</div>
-    </div>
-    <div class="metric-box">
-      <div class="metric-label">Intermedia (-1.5 D / 67 cm)</div>
-      <div class="metric-vals"><span class="val-r">${rData.va[idxInt2].toFixed(2)} logMAR</span> <span class="val-c">vs ${cData.va[idxInt2].toFixed(2)}</span></div>
-      <div class="metric-sub">Snellen: ${logMARtoSnellen(rData.va[idxInt2])} vs ${logMARtoSnellen(cData.va[idxInt2])}</div>
-    </div>
-    <div class="metric-box">
-      <div class="metric-label">Cerca (-2.5 D / 40 cm)</div>
-      <div class="metric-vals"><span class="val-r">${rData.va[idxNear].toFixed(2)} logMAR</span> <span class="val-c">vs ${cData.va[idxNear].toFixed(2)}</span></div>
-      <div class="metric-sub">Snellen: ${logMARtoSnellen(rData.va[idxNear])} vs ${logMARtoSnellen(cData.va[idxNear])}</div>
-    </div>
-  `;
-
-  document.getElementById('clinical-text').innerHTML = `${rData.note}<br><br>${cData.note}`;
-  document.getElementById('ref-text').innerHTML = `<strong>Referencias y trazabilidad metodológica:</strong><br>• ${rData.ref}<br>• ${cData.ref}`;
-}
-
-const chartArea = document.getElementById('chart-area');
-
-function handlePointer(clientX) {
-  const rect = chartArea.getBoundingClientRect();
-  const relX = ((clientX - rect.left) / rect.width) * W;
-  let closestIdx = 0;
-  let minDist = Infinity;
-
-  diopters.forEach((_, idx) => {
-    const dist = Math.abs(getX(idx) - relX);
-    if (dist < minDist) {
-      minDist = dist;
-      closestIdx = idx;
-    }
-  });
-
-  if (state.activeIdx !== closestIdx) {
-    state.activeIdx = closestIdx;
-    renderChart();
-  }
-}
-
-chartArea.addEventListener('mousemove', e => handlePointer(e.clientX));
-chartArea.addEventListener('touchmove', e => {
-  e.preventDefault();
-  handlePointer(e.touches[0].clientX);
-}, { passive: false });
-chartArea.addEventListener('touchstart', e => handlePointer(e.touches[0].clientX));
-
-function bindButtons(containerId, key, activeClass) {
-  document.getElementById(containerId).querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.getElementById(containerId).querySelectorAll('button').forEach(b => b.className = '');
-      btn.className = activeClass;
-      state[key] = btn.dataset.v;
-      renderChart();
-    });
-  });
-}
-
-bindButtons('btn-rayner', 'rayner', 'act-r');
-bindButtons('btn-comp', 'comp', 'act-c');
-
-renderChart();
-</script>
-</body>
-</html>
+    note: '<strong>Alcon PanOptix:</strong> Trifocal difractivo (88% eficiencia lumínica) con foco intermedio a 60 cm y cercano a 40 cm. Presenta una caída ("valle") en -1.0 D (
