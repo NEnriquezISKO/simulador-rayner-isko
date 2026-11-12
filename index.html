@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Comparador de Curvas de Desenfoque | Rayner vs. Competencia</title>
+  <title>Comparador Clínico de Curvas de Desenfoque | Rayner vs. Competencia</title>
   <style>
     :root {
       --rayner: #005eb8;
@@ -34,7 +34,7 @@
     header small { color: var(--muted); font-size: 0.8rem; }
 
     .container {
-      max-width: 1180px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
       padding: 1.25rem;
@@ -43,17 +43,16 @@
       gap: 1.1rem;
     }
 
-    /* Selectores de Lentes */
     .controls-panel {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.15rem;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.4fr;
       gap: 1.25rem;
     }
-    @media (max-width: 850px) { .controls-panel { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .controls-panel { grid-template-columns: 1fr; } }
 
     .group { display: flex; flex-direction: column; gap: 0.5rem; }
     .group-header { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
@@ -64,13 +63,13 @@
     button {
       flex: 1;
       min-width: fit-content;
-      padding: 0.55rem 0.8rem;
+      padding: 0.55rem 0.75rem;
       border: 1px solid #334155;
       background: var(--dark);
       color: #cbd5e1;
       border-radius: 7px;
       cursor: pointer;
-      font-size: 0.83rem;
+      font-size: 0.81rem;
       font-weight: 500;
       transition: all 0.2s;
     }
@@ -78,7 +77,6 @@
     button.act-r { background: var(--rayner); border-color: var(--rayner-bright); color: #fff; font-weight: 600; }
     button.act-c { background: rgba(245, 158, 11, 0.2); border-color: var(--comp); color: #fbbf24; font-weight: 600; }
 
-    /* Contenedor del Gráfico */
     .chart-card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -112,7 +110,6 @@
 
     svg { width: 100%; height: 100%; display: block; overflow: visible; }
 
-    /* Tooltip interactivo */
     .tooltip {
       position: absolute;
       top: 12px;
@@ -124,13 +121,12 @@
       font-size: 0.82rem;
       pointer-events: none;
       backdrop-filter: blur(8px);
-      min-width: 235px;
+      min-width: 245px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .tooltip-title { font-weight: 700; color: #fff; margin-bottom: 0.35rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.25rem; }
     .tooltip-row { display: flex; justify-content: space-between; gap: 1rem; margin: 0.2rem 0; }
 
-    /* Tabla comparativa inferior */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -158,13 +154,13 @@
       line-height: 1.5;
       color: #e2e8f0;
     }
-    .ref-text { font-size: 0.74rem; color: #64748b; margin-top: 0.4rem; }
+    .ref-text { font-size: 0.74rem; color: #94a3b8; margin-top: 0.5rem; line-height: 1.4; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Curvas de Desenfoque Binocular | <span>Portafolio Rayner</span> vs. Competencia</h1>
+  <h1>Curvas de Desenfoque Clínicas | <span>Portafolio Rayner</span> vs. Competencia</h1>
   <small>Deslizá el cursor o el dedo sobre el gráfico para inspeccionar cada dioptría</small>
 </header>
 
@@ -176,8 +172,8 @@
       <div class="btns" id="btn-rayner">
         <button class="act-r" data-v="galaxy">RayOne Galaxy</button>
         <button data-v="trifocal">RayOne Trifocal</button>
-        <button data-v="emv">RayOne EMV</button>
-        <button data-v="mono_r">RayOne Monofocal</button>
+        <button data-v="emv">RayOne EMV (Emetropía)</button>
+        <button data-v="emv_mono">RayOne EMV (Monovisión -1.5D)</button>
       </div>
     </div>
 
@@ -185,11 +181,12 @@
       <div class="group-header" style="color: var(--comp);"><span class="dot-c"></span> 2. Lente Competencia (Curva Naranja)</div>
       <div class="btns" id="btn-comp">
         <button class="act-c" data-v="puresee">J&J PureSee</button>
+        <button data-v="eyhance">J&J Eyhance</button>
+        <button data-v="symfony">J&J Symfony</button>
         <button data-v="panoptix">Alcon PanOptix</button>
         <button data-v="vivity">Alcon Vivity</button>
         <button data-v="atlara">ZEISS AT LARA</button>
         <button data-v="atlisa">ZEISS AT LISA tri</button>
-        <button data-v="synergy">TECNIS Synergy</button>
       </div>
     </div>
   </div>
@@ -224,93 +221,98 @@
 // Eje X estándar de desenfoque (Dioptrías de +1.0 D a -3.5 D en pasos de 0.5 D)
 const diopters = [1.0, 0.5, 0.0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0, -3.5];
 
-// Datos clínicos de agudeza visual binocular (logMAR) por dioptría
+// PORTAFOLIO RAYNER (Curva Azul)
 const raynerCurves = {
   galaxy: {
-    name: 'RayOne Galaxy (Óptica Espiral)',
-    // Basado en Abela-Formanek et al., J Refract Surg 2025 y curva comparativa oficial
+    name: 'RayOne Galaxy (Óptica Espiral IA)',
+    // Curva binocular Abela-Formanek et al., J Refract Surg 2025
     va: [0.20, 0.05, -0.05, -0.02, 0.01, 0.02, 0.05, 0.12, 0.23, 0.35],
-    light: '100% (No difractivo)',
+    note: '<strong>RayOne Galaxy:</strong> Óptica espiral no difractiva con 0% de pérdida lumínica. Ofrece un rango continuo de lejos a cerca sin valles intermedios y minimiza las disfotopsias nocturnas.',
     ref: 'RayOne Galaxy: Abela-Formanek C et al. Performance of the First Spiral Refractive Intraocular Lens for Continuous Full Range of Vision. J Refract Surg. 2025;41(11):e1213-e1222.'
   },
   trifocal: {
     name: 'RayOne Trifocal (Difractivo 16 anillos)',
+    // Curva clínica Rayner (adición intermedia +1.63 D, cercana +3.25 D, 89% transmisión)
     va: [0.22, 0.06, -0.04, 0.03, 0.08, 0.05, 0.03, 0.06, 0.18, 0.32],
-    light: '89% eficiencia lumínica',
-    ref: 'RayOne Trifocal: Datos clínicos multicéntricos Rayner (adición intermedia +1.63 D, cercana +3.25 D).'
+    note: '<strong>RayOne Trifocal:</strong> Diseño difractivo patentado de 16 anillos (89% de transmisión lumínica a pupila de 3 mm; solo 11% de pérdida). Menor incidencia de fenómenos fóticos frente a FineVision y PanOptix.',
+    ref: 'RayOne Trifocal: Ferreira TB & Ribeiro FJ. J Refract Surg. 2019;35(7):418-425; Rayner Data on File 2021.'
   },
   emv: {
-    name: 'RayOne EMV (Rango Extendido)',
-    va: [0.18, 0.03, -0.05, -0.01, 0.04, 0.11, 0.21, 0.32, 0.43, 0.50],
-    light: '100% (No difractivo)',
-    ref: 'RayOne EMV: Curva binocular en emetropía (rango extendido continuo hasta -1.50 D; ampliable hasta 2.25 D con micromonovisión).'
+    name: 'RayOne EMV (Objetivo Emetropía)',
+    // Curva oficial Rayner (aberración esférica positiva controlada, hasta 1.5 D de rango)
+    va: [0.16, 0.02, -0.05, -0.01, 0.04, 0.11, 0.21, 0.32, 0.43, 0.50],
+    note: '<strong>RayOne EMV (Emetropía):</strong> Lente no difractivo diseñado junto al Prof. Graham Barrett. Proporciona hasta 1.5 D de rango extendido continuo con sensibilidad al contraste y perfil de disfotopsias de nivel monofocal.',
+    ref: 'RayOne EMV: Rayner Clinical Data (RDTR 1937); Estudio multicéntrico en 8 países (56 pacientes / 89 ojos).'
   },
-  mono_r: {
-    name: 'RayOne Aspheric (Monofocal)',
-    va: [0.21, 0.05, -0.06, 0.04, 0.16, 0.28, 0.39, 0.48, 0.50, 0.50],
-    light: '100% (Monofocal)',
-    ref: 'RayOne Aspheric: Curva de desenfoque monofocal estándar de referencia.'
+  emv_mono: {
+    name: 'RayOne EMV (Monovisión -1.5 D)',
+    // Curva binocular oficial Rayner con offset de -1.5 D en ojo no dominante
+    va: [0.18, 0.03, -0.04, -0.01, 0.02, 0.04, 0.08, 0.14, 0.24, 0.36],
+    note: '<strong>RayOne EMV (Monovisión -1.5 D):</strong> Al aplicar un offset modesto de -1.5 D en el ojo cercano, la aberración esférica positiva genera una zona de fusión binocular continua desde lejos hasta lectura cercana sin halos difractivos.',
+    ref: 'RayOne EMV Monovisión: Rayner Global Clinical Guidelines (Prof. Graham Barrett).'
   }
 };
 
+// PORTAFOLIO COMPETENCIA (Curva Naranja)
 const compCurves = {
   puresee: {
-    name: 'J&J TECNIS PureSee (EDOF Puramente Refractivo)',
+    name: 'J&J TECNIS PureSee (EDOF Refractivo)',
     // Promedio ponderado literatura (Corbett 2024, Hassel 2024, Tandogan 2024, Boccuzzi 2024)
     va: [0.21, 0.04, -0.05, -0.01, 0.04, 0.10, 0.19, 0.29, 0.40, 0.49],
-    light: 'No difractivo refractivo',
-    summary: '<strong>Comparativa clínica:</strong> Frente a J&J PureSee, <strong>RayOne Galaxy</strong> ofrece una meseta más plana y mejor agudeza visual en visión intermedia (-1.5 D: 0.02 vs 0.10 logMAR) y cercana (-2.5 D: 0.12 vs 0.29 logMAR), proporcionando un rango funcional (≤ 0.20 logMAR) significativamente más amplio.',
-    ref: 'J&J PureSee: Promedio ponderado de Corbett et al. 2024, Hassel O. ESCRS 2024, Tandogan et al. ESCRS 2024, Boccuzzi et al. ESCRS 2024.'
+    note: '<strong>J&J TECNIS PureSee:</strong> EDOF puramente refractivo con bajo nivel de halos, pero su rango funcional se atenúa a partir de -1.5 D / -2.0 D, ofreciendo menor agudeza cercana que RayOne Galaxy.',
+    ref: 'J&J PureSee: Promedio ponderado de Corbett et al. 2024 (Eye), Hassel O. ESCRS 2024, Tandogan et al. ESCRS 2024, Boccuzzi et al. ESCRS 2024.'
+  },
+  eyhance: {
+    name: 'J&J TECNIS Eyhance (Monofocal Mejorado)',
+    // Especificación oficial J&J: mejora ~1 línea (0.1 logMAR) a -1.5 D frente a monofocal estándar
+    va: [0.21, 0.04, -0.05, 0.02, 0.09, 0.18, 0.29, 0.40, 0.49, 0.50],
+    note: '<strong>J&J TECNIS Eyhance:</strong> Monofocal mejorado con aumento continuo de potencia central. Aporta ~1 línea extra en intermedia (-1.5 D: ~0.18 logMAR) frente a un monofocal estándar, pero sin alcance cercano funcional.',
+    ref: 'J&J TECNIS Eyhance: TECNIS Eyhance US DFU (Z311769E) & Data on File DOF2021CT4006.'
+  },
+  symfony: {
+    name: 'J&J TECNIS Symfony (EDOF Difractivo)',
+    // Curva comparativa Rayner EMV vs Symfony / Vivity / Eyhance
+    va: [0.22, 0.05, -0.04, 0.00, 0.04, 0.10, 0.20, 0.31, 0.42, 0.50],
+    note: '<strong>J&J TECNIS Symfony:</strong> EDOF difractivo (echelette). Ofrece buen rango intermedio hasta -1.5 D, pero con mayor incidencia de halos/starbursts nocturnos que los diseños no difractivos (Galaxy y EMV).',
+    ref: 'J&J TECNIS Symfony: Datos clínicos comparativos publicados en Rayner EMV Clinical Compendium.'
   },
   panoptix: {
     name: 'Alcon Clareon / AcrySof PanOptix',
-    // Datos de la curva comparativa subida (valle en -1.0 D = 0.11, pico en -2.0 D = 0.00)
+    // Datos exactos de la gráfica comparativa subida (valle en -1.0 D = 0.11, pico en -2.0 D = 0.00)
     va: [0.21, 0.03, -0.06, 0.03, 0.11, 0.04, 0.00, 0.03, 0.16, 0.30],
-    light: '88% (Trifocal difractivo)',
-    summary: '<strong>Comparativa clínica:</strong> PanOptix presenta un pico trifocal marcado en lectura fija (-2.0 D), pero sufre una caída ("valle") en distancia intermedia (-1.0 D, 0.11 logMAR) y divide la luz mediante anillos difractivos. <strong>RayOne Galaxy</strong> mantiene una transición continua sin valles y con 0% de pérdida lumínica por difracción.',
-    ref: 'Alcon PanOptix: Promedio ponderado de PanOptix IFU, Mendicute J et al. 2024, Ferreira T et al. 2022, Ribeiro F & Ferreira TB 2020.'
+    note: '<strong>Alcon PanOptix:</strong> Trifocal difractivo (88% eficiencia lumínica) con foco intermedio a 60 cm y cercano a 40 cm. Presenta una caída ("valle") en -1.0 D (0.11 logMAR) y disfotopsias nocturnas por sus anillos difractivos.',
+    ref: 'Alcon PanOptix: Modi S et al. Ophthalmology 2021;128(2):197-207; Böhm M et al. JCRS 2019;45:1625-1636.'
   },
   vivity: {
     name: 'Alcon Clareon / AcrySof Vivity',
     // Promedio ponderado literatura (Vivity IFU, Shafer 2022, Kandavel 2023, Savini 2025)
     va: [0.22, 0.05, -0.03, 0.01, 0.06, 0.13, 0.23, 0.34, 0.44, 0.50],
-    light: 'No difractivo (X-WAVE)',
-    summary: '<strong>Comparativa clínica:</strong> Aunque ambos son diseños no difractivos con bajo nivel de halos, <strong>RayOne Galaxy</strong> supera a Alcon Vivity en agudeza visual en todas las distancias (lejos, intermedia y cerca) y extiende el rango de visión funcional hasta lectura cercana (-2.5 D: 0.12 vs 0.34 logMAR).',
-    ref: 'Alcon Vivity: Promedio ponderado de Vivity IFU, Shafer et al. 2022, Kandavel et al. 2023, Savini et al. 2025.'
+    note: '<strong>Alcon Vivity:</strong> EDOF no difractivo (tecnología X-WAVE). Mantiene bajo perfil de halos similar a RayOne EMV, pero cae por debajo de 0.20 logMAR a partir de -1.75 D, requiriendo gafas para lectura fina.',
+    ref: 'Alcon Vivity: Clareon Vivity DFU; Shafer et al. 2022; Kandavel et al. 2023; Savini et al. 2025.'
   },
   atlara: {
     name: 'ZEISS AT LARA 829MP (EDOF Difractivo)',
-    // Promedio ponderado literatura (Reinhard 2020, Moore 2024, Ivellio-Vellin 2024, Ganesh 2021)
-    va: [0.22, 0.05, -0.03, 0.01, 0.05, 0.12, 0.22, 0.33, 0.43, 0.50],
-    light: 'Difractivo (SMP)',
-    summary: '<strong>Comparativa clínica:</strong> <strong>RayOne Galaxy</strong> demuestra mejor agudeza visual binocular que ZEISS AT LARA en todo el espectro de desenfoque, con un rango continuo más amplio hacia cerca y sin los anillos difractivos característicos de la plataforma AT LARA.',
-    ref: 'ZEISS AT LARA: Promedio ponderado de Reinhard T et al. 2020, Moore J et al. 2024, Ivellio-Vellin H et al. 2024, Ganesh S et al. 2021.'
+    // Valores exactos extraídos de Song et al. 2021 (PDF ZEISS adjunto: +1.0=0.18, +0.5=0.10, 0.0=0.03, -0.5=0.03, -1.0=0.06, -1.5=0.12, -2.0=0.13, -2.5=0.20, -3.0=0.32)
+    va: [0.18, 0.10, 0.03, 0.03, 0.06, 0.12, 0.13, 0.20, 0.32, 0.43],
+    note: '<strong>ZEISS AT LARA 829MP:</strong> EDOF difractivo (perfil SMP). Según datos publicados (Song et al. 2021), mantiene visión funcional (≤ 0.20 logMAR) hasta -2.5 D, pero con menor agudeza en lejos e intermedia que RayOne Galaxy.',
+    ref: 'ZEISS AT LARA: Song et al. J Ophthalmol 2021 (DOI: 10.1155/2021/9034258); Reinhard T et al. 2020.'
   },
   atlisa: {
     name: 'ZEISS AT LISA tri 839MP (Trifocal)',
-    va: [0.23, 0.06, -0.04, 0.04, 0.12, 0.06, 0.04, 0.08, 0.20, 0.34],
-    light: '85.7% (Trifocal difractivo)',
-    summary: '<strong>Comparativa clínica:</strong> AT LISA tri sitúa su foco intermedio a 80 cm (-1.25 D), presentando una caída hacia -1.0 D y una pérdida lumínica cercana al 14% por difracción. <strong>RayOne Galaxy</strong> ofrece mayor transmisión lumínica y continuidad óptica.',
-    ref: 'ZEISS AT LISA tri: Datos clínicos publicados en literatura peer-reviewed (adición intermedia +1.66 D, cercana +3.33 D).'
-  },
-  synergy: {
-    name: 'J&J TECNIS Synergy (Híbrido EDOF + Multifocal)',
-    va: [0.23, 0.06, -0.03, 0.01, 0.03, 0.02, 0.02, 0.05, 0.14, 0.26],
-    light: 'Difractivo híbrido',
-    summary: '<strong>Comparativa clínica:</strong> TECNIS Synergy logra un rango cercano profundo mediante una óptica difractiva compleja que penaliza el contraste y genera disfotopsias nocturnas. <strong>RayOne Galaxy</strong> alcanza una curva continua funcional preservando una calidad visual nocturna comparable a un monofocal.',
-    ref: 'J&J TECNIS Synergy: Curva binocular clínica publicada en estudios multicéntricos.'
+    // Valores exactos extraídos de Song et al. 2021 & Acar & Tabakci 2021 (PDF ZEISS adjunto: +1.0=0.12, +0.5=0.08, 0.0=0.05, -0.5=0.05, -1.0=0.08, -1.5=0.15, -2.0=0.18, -2.5=0.22, -3.0=0.22)
+    va: [0.12, 0.08, 0.05, 0.05, 0.08, 0.15, 0.18, 0.22, 0.22, 0.30],
+    note: '<strong>ZEISS AT LISA tri 839MP:</strong> Trifocal difractivo de superficie completa (85.7% eficiencia lumínica; adiciones +1.66 D y +3.33 D). Presenta pérdida lumínica del ~14% y mayor tasa de halos nocturnos.',
+    ref: 'ZEISS AT LISA tri: Song et al. J Ophthalmol 2021; Acar & Tabakci. Int Ophthalmol 2021 (DOI: 10.1007/s10792-021-01970-3).'
   }
 };
 
-const state = { rayner: 'galaxy', comp: 'puresee', activeIdx: 4 }; // Índice 4 = -1.0 D por defecto
+const state = { rayner: 'galaxy', comp: 'puresee', activeIdx: 5 }; // Índice 5 = -1.5 D (67 cm) por defecto
 
-// Dimensiones internas del SVG
 const W = 920, H = 400;
 const pad = { top: 45, right: 35, bottom: 50, left: 65 };
 const plotW = W - pad.left - pad.right;
 const plotH = H - pad.top - pad.bottom;
 
-// Escalas: X de +1.0 D (idx 0) a -3.5 D (idx 9); Y de -0.10 logMAR (arriba) a +0.50 logMAR (abajo)
 function getX(idx) {
   return pad.left + (idx / (diopters.length - 1)) * plotW;
 }
@@ -333,7 +335,6 @@ function diopterToDist(d) {
   return `~${cm} cm`;
 }
 
-// Generar trazado suave (Catmull-Rom / Bezier) para que luzca idéntico a las gráficas clínicas de Rayner
 function buildSmoothPath(points) {
   if (points.length === 0) return '';
   let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
@@ -363,13 +364,13 @@ function renderChart() {
 
   let html = '';
 
-  // 1. Franja verde de visión funcional (de -0.10 a +0.20 logMAR)
+  // 1. Franja verde de visión funcional (<= 0.20 logMAR)
   const yTop = getY(-0.10);
   const yFunc = getY(0.20);
   html += `<rect x="${pad.left}" y="${yTop}" width="${plotW}" height="${yFunc - yTop}" fill="rgba(16, 185, 129, 0.08)" />`;
   html += `<line x1="${pad.left}" y1="${yFunc}" x2="${W - pad.right}" y2="${yFunc}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,4" />`;
 
-  // 2. Grilla Horizontal (logMAR)
+  // 2. Grilla Horizontal
   const yTicks = [-0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5];
   yTicks.forEach(val => {
     const y = getY(val);
@@ -378,17 +379,15 @@ function renderChart() {
     html += `<text x="${pad.left - 12}" y="${y + 4}" fill="#94a3b8" font-size="12" text-anchor="end">${val.toFixed(1)}</text>`;
   });
 
-  // Título Eje Y
   html += `<text x="18" y="${pad.top + plotH / 2}" fill="#94a3b8" font-size="12" font-weight="bold" transform="rotate(-90, 18, ${pad.top + plotH / 2})" text-anchor="middle">Agudeza Visual (logMAR)</text>`;
 
-  // 3. Grilla Vertical (Dioptrías) y etiquetas superiores de distancia
+  // 3. Grilla Vertical
   diopters.forEach((d, idx) => {
     const x = getX(idx);
     html += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${H - pad.bottom}" stroke="#1e293b" stroke-width="1" />`;
     const labelD = d > 0 ? `+${d.toFixed(1)}` : d.toFixed(1);
     html += `<text x="${x}" y="${H - pad.bottom + 20}" fill="#cbd5e1" font-size="12" font-weight="600" text-anchor="middle">${labelD} D</text>`;
 
-    // Etiquetas de referencia clínica arriba
     if (d === 0.0) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">LEJOS (∞)</text>`;
     if (d === -1.5) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">INTERMEDIA (67 cm)</text>`;
     if (d === -2.5) html += `<text x="${x}" y="${pad.top - 14}" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">CERCA (40 cm)</text>`;
@@ -396,29 +395,26 @@ function renderChart() {
 
   html += `<text x="${pad.left + plotW / 2}" y="${H - 8}" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="middle">Desenfoque (Dioptrías)</text>`;
 
-  // 4. Calcular puntos de ambas curvas
+  // 4. Curvas
   const rPts = rData.va.map((v, i) => ({ x: getX(i), y: getY(v), va: v }));
   const cPts = cData.va.map((v, i) => ({ x: getX(i), y: getY(v), va: v }));
 
-  // Área sombreada suave bajo Rayner
   const rPath = buildSmoothPath(rPts);
   const cPath = buildSmoothPath(cPts);
   const areaPath = `${rPath} L ${rPts[rPts.length - 1].x} ${H - pad.bottom} L ${rPts[0].x} ${H - pad.bottom} Z`;
   html += `<path d="${areaPath}" fill="rgba(56, 189, 248, 0.09)" />`;
 
-  // Dibujar Curva Competencia (Naranja)
   html += `<path d="${cPath}" fill="none" stroke="#f59e0b" stroke-width="3.2" />`;
   cPts.forEach(p => {
     html += `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#090d16" stroke="#f59e0b" stroke-width="2.5" />`;
   });
 
-  // Dibujar Curva Rayner (Azul brillante)
   html += `<path d="${rPath}" fill="none" stroke="#38bdf8" stroke-width="3.8" />`;
   rPts.forEach(p => {
     html += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#005eb8" stroke="#38bdf8" stroke-width="2.5" />`;
   });
 
-  // 5. Línea guía del cursor activo
+  // 5. Cursor activo
   const actX = getX(state.activeIdx);
   const actR = rPts[state.activeIdx];
   const actC = cPts[state.activeIdx];
@@ -429,7 +425,7 @@ function renderChart() {
 
   svg.innerHTML = html;
 
-  // Actualizar Tooltip
+  // Tooltip
   const dVal = diopters[state.activeIdx];
   const dStr = dVal > 0 ? `+${dVal.toFixed(1)} D` : `${dVal.toFixed(1)} D`;
   const diff = (actC.va - actR.va).toFixed(2);
@@ -437,16 +433,16 @@ function renderChart() {
 
   document.getElementById('tooltip').innerHTML = `
     <div class="tooltip-title">Desenfoque: ${dStr} (${diopterToDist(dVal)})</div>
-    <div class="tooltip-row"><span style="color:#38bdf8;font-weight:600;">${rData.name.split(' ')[1]}:</span> <span><strong>${actR.va.toFixed(2)}</strong> (${logMARtoSnellen(actR.va)})</span></div>
-    <div class="tooltip-row"><span style="color:#f59e0b;font-weight:600;">${cData.name.split(' ')[1]}:</span> <span><strong>${actC.va.toFixed(2)}</strong> (${logMARtoSnellen(actC.va)})</span></div>
+    <div class="tooltip-row"><span style="color:#38bdf8;font-weight:600;">Rayner:</span> <span><strong>${actR.va.toFixed(2)}</strong> (${logMARtoSnellen(actR.va)})</span></div>
+    <div class="tooltip-row"><span style="color:#f59e0b;font-weight:600;">Competencia:</span> <span><strong>${actC.va.toFixed(2)}</strong> (${logMARtoSnellen(actC.va)})</span></div>
     <div class="tooltip-row" style="margin-top:0.35rem;border-top:1px solid #1e293b;padding-top:0.25rem;"><span>Diferencia:</span> ${diffLabel}</div>
   `;
 
-  // Actualizar tarjetas métricas inferiores
+  // Tarjetas métricas
   const idxFar = 2;   // 0.0 D
-  const idxInt1 = 4;  // -1.0 D (100 cm)
-  const idxInt2 = 5;  // -1.5 D (67 cm)
-  const idxNear = 7;  // -2.5 D (40 cm)
+  const idxInt1 = 4;  // -1.0 D
+  const idxInt2 = 5;  // -1.5 D
+  const idxNear = 7;  // -2.5 D
 
   document.getElementById('metrics-grid').innerHTML = `
     <div class="metric-box">
@@ -471,11 +467,10 @@ function renderChart() {
     </div>
   `;
 
-  document.getElementById('clinical-text').innerHTML = cData.summary;
-  document.getElementById('ref-text').innerHTML = `<strong>Fuentes:</strong> ${rData.ref} | ${cData.ref}`;
+  document.getElementById('clinical-text').innerHTML = `${rData.note}<br><br>${cData.note}`;
+  document.getElementById('ref-text').innerHTML = `<strong>Referencias clínicas:</strong><br>• ${rData.ref}<br>• ${cData.ref}`;
 }
 
-// Interactividad del cursor sobre el gráfico (Mouse + Touch)
 const chartArea = document.getElementById('chart-area');
 
 function handlePointer(clientX) {
@@ -505,7 +500,6 @@ chartArea.addEventListener('touchmove', e => {
 }, { passive: false });
 chartArea.addEventListener('touchstart', e => handlePointer(e.touches[0].clientX));
 
-// Configurar botones
 function bindButtons(containerId, key, activeClass) {
   document.getElementById(containerId).querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
