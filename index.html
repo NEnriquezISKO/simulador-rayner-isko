@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Simulador Comparativo de Visión - Lentes Intraoculares</title>
+  <style>
+    :root {
+      --primary: #005eb8; /* Azul clínico tipo Rayner */
+      --dark: #0f172a;
+      --panel: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+      background-color: var(--dark);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1rem 2rem;
+      background: var(--panel);
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 600; letter-spacing: 0.5px; }
+    header span { color: var(--accent); font-weight: 700; }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+      gap: 1.5rem;
+    }
+
+    /* Contenedor del Comparador */
+    .simulator-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 600px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      user-select: none;
+      touch-action: none;
+      background: #000;
+    }
+
+    .sim-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .sim-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.3s ease;
+    }
+
+    /* Capa superior recortada por el slider */
+    #layer-rayner {
+      clip-path: inset(0 50% 0 0);
+      z-index: 2;
+    }
+
+    /* Simulación de Halos Nocturnos (Disfotopsias) */
+    .halo-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 35% 58%, rgba(255,255,220,0.35) 0%, rgba(255,200,100,0.15) 8%, transparent 18%),
+                  radial-gradient(circle at 65% 58%, rgba(255,255,220,0.35) 0%, rgba(255,200,100,0.15) 8%, transparent 18%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: screen;
+    }
+
+    /* Etiquetas flotantes */
+    .badge {
+      position: absolute;
+      top: 16px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 4;
+      backdrop-filter: blur(6px);
+    }
+
+    .badge-left { left: 16px; background: rgba(0, 94, 184, 0.85); color: #fff; border: 1px solid var(--accent); }
+    .badge-right { right: 16px; background: rgba(15, 23, 42, 0.85); color: #cbd5e1; border: 1px solid #475569; }
+
+    /* Línea y botón del Slider */
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: #fff;
+      z-index: 5;
+      cursor: ew-resize;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    .slider-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      background: var(--primary);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    /* Panel de Controles */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      background: var(--panel);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .control-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .control-group label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; }
+
+    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    button {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    button:hover { border-color: var(--accent); }
+    button.active {
+      background: var(--primary);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .info-bar {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      background: rgba(56, 189, 248, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 0.8rem 1rem;
+      border-radius: 0 8px 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Simulador Óptico Comparativo | <span>Rayner Galaxy</span> vs. Competencia</h1>
+</header>
+
+<div class="main-container">
+  <div class="simulator-wrapper" id="sim-box">
+    <div class="badge badge-left">Rayner Galaxy (Óptica Espiral)</div>
+    <div class="badge badge-right" id="comp-label">Trifocal Difractivo Estándar</div>
+
+    <!-- Capa Derecha: Competencia -->
+    <div class="sim-layer" id="layer-comp">
+      <img id="img-comp" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Escena Competencia">
+      <div class="halo-overlay" id="halo-comp"></div>
+    </div>
+
+    <!-- Capa Izquierda: Rayner -->
+    <div class="sim-layer" id="layer-rayner">
+      <img id="img-rayner" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80" alt="Escena Rayner">
+    </div>
+
+    <!-- Control Deslizante -->
+    <div class="slider-handle" id="slider-handle">
+      <div class="slider-button">↔</div>
+    </div>
+  </div>
+
+  <!-- Controles Interactivos -->
+  <div class="controls-grid">
+    <div class="control-group">
+      <label>1. Lente a Comparar (Derecha)</label>
+      <div class="btn-group" id="lens-selector">
+        <button class="active" data-lens="trifocal">Trifocal Difractivo</button>
+        <button data-lens="edof">EDOF Estándar</button>
+        <button data-lens="monofocal">Monofocal</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>2. Distancia de Enfoque</label>
+      <div class="btn-group" id="dist-selector">
+        <button class="active" data-dist="far">Lejos (Conducción)</button>
+        <button data-dist="inter">Intermedia (Tablero/PC)</button>
+        <button data-dist="near">Cerca (Lectura)</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>3. Condición Lumínica</label>
+      <div class="btn-group" id="light-selector">
+        <button class="active" data-light="day">Día</button>
+        <button data-light="night">Noche (Disfotopsias)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-bar" id="clinical-note">
+    <strong>Nota clínica:</strong> En visión lejana diurna, ambos lentes ofrecen alta agudeza visual, aunque los diseños difractivos pueden presentar una leve pérdida de sensibilidad al contraste.
+  </div>
+</div>
+
+<script>
+  // Estado actual del simulador
+  const state = {
+    lens: 'trifocal',
+    dist: 'far',
+    light: 'day'
+  };
+
+  // Imágenes de ejemplo (Reemplazar por tus propias imágenes locales en GitHub, ej: 'img/dia.jpg' y 'img/noche.jpg')
+  const scenes = {
+    day: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1200&q=80',
+    night: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80'
+  };
+
+  const lensNames = {
+    trifocal: 'Trifocal Difractivo Estándar',
+    edof: 'EDOF Estándar',
+    monofocal: 'Monofocal Asférico'
+  };
+
+  // Elementos DOM
+  const simBox = document.getElementById('sim-box');
+  const layerRayner = document.getElementById('layer-rayner');
+  const sliderHandle = document.getElementById('slider-handle');
+  const imgRayner = document.getElementById('img-rayner');
+  const imgComp = document.getElementById('img-comp');
+  const haloComp = document.getElementById('halo-comp');
+  const compLabel = document.getElementById('comp-label');
+  const clinicalNote = document.getElementById('clinical-note');
+
+  // Lógica del Slider (Mouse + Touch para tablets/celulares)
+  let isDragging = false;
+
+  function updateSlider(clientX) {
+    const rect = simBox.getBoundingClientRect();
+    let x = clientX - rect.left;
+    if (x < 0) x = 0;
+    if (x > rect.width) x = rect.width;
+    const percent = (x / rect.width) * 100;
+    
+    layerRayner.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+    sliderHandle.style.left = `${percent}%`;
+  }
+
+  simBox.addEventListener('mousedown', () => isDragging = true);
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', (e) => { if (isDragging) updateSlider(e.clientX); });
+
+  simBox.addEventListener('touchstart', (e) => { isDragging = true; updateSlider(e.touches[0].clientX); });
+  window.addEventListener('touchend', () => isDragging = false);
+  window.addEventListener('touchmove', (e) => { if (isDragging) updateSlider(e.touches[0].clientX); });
+
+  // Lógica óptica y actualización de filtros
+  function renderSimulation() {
+    compLabel.textContent = lensNames[state.lens];
+    
+    // Cambiar imagen si cambia día/noche
+    if (imgRayner.src !== scenes[state.light]) {
+      imgRayner.src = scenes[state.light];
+      imgComp.src = scenes[state.light];
+    }
+
+    let raynerFilter = 'blur(0px) contrast(100%)';
+    let compFilter = 'blur(0px) contrast(100%)';
+    let haloOpacity = 0;
+    let note = '';
+
+    // Reglas ópticas simuladas
+    if (state.lens === 'trifocal') {
+      compFilter = 'blur(0.4px) contrast(90%)'; // Leve pérdida de contraste por división de luz
+      if (state.light === 'night') {
+        haloOpacity = 0.85; // Halos marcados por anillos difractivos
+        note = '<strong>Visión Nocturna:</strong> Los anillos difractivos del trifocal generan halos y glare alrededor de luces puntuales. La óptica espiral continua de Rayner Galaxy minimiza estas disfotopsias.';
+      } else {
+        note = '<strong>Visión Diurna:</strong> Rango completo en ambos lentes, pero Rayner Galaxy aprovecha el 100% de la transmisión lumínica sin escalones difractivos.';
+      }
+    } 
+    else if (state.lens === 'edof') {
+      if (state.dist === 'near') {
+        compFilter = 'blur(2.8px) contrast(95%)';
+        note = '<strong>Visión Cercana:</strong> Los lentes EDOF estándar pierden nitidez en lectura cercana (33-40 cm), mientras que Rayner Galaxy mantiene un rango continuo funcional.';
+      } else {
+        compFilter = 'blur(0.2px) contrast(96%)';
+        haloOpacity = state.light === 'night' ? 0.35 : 0;
+        note = '<strong>Lejos e Intermedia:</strong> Buen desempeño del EDOF en distancia intermedia, con menor incidencia de halos que un trifocal.';
+      }
+    } 
+    else if (state.lens === 'monofocal') {
+      if (state.dist === 'inter') {
+        compFilter = 'blur(2.5px)';
+        note = '<strong>Visión Intermedia:</strong> El lente monofocal comienza a desenfocar objetos a distancia de tablero o computadora.';
+      } else if (state.dist === 'near') {
+        compFilter = 'blur(5.5px)';
+        note = '<strong>Visión Cercana:</strong> Dependencia total de gafas de lectura con un monofocal estándar frente a la independencia de gafas de Galaxy.';
+      } else {
+        note = '<strong>Visión Lejana:</strong> Máxima nitidez a distancia en ambos lentes, pero el monofocal carece de profundidad de foco.';
+      }
+    }
+
+    imgRayner.style.filter = raynerFilter;
+    imgComp.style.filter = compFilter;
+    haloComp.style.opacity = haloOpacity;
+    clinicalNote.innerHTML = note;
+  }
+
+  // Manejo de botones
+  function setupButtons(groupId, stateKey) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state[stateKey] = btn.dataset[stateKey];
+        renderSimulation();
+      });
+    });
+  }
+
+  setupButtons('lens-selector', 'lens');
+  setupButtons('dist-selector', 'dist');
+  setupButtons('light-selector', 'light');
+
+  // Inicializar
+  renderSimulation();
+</script>
+</body>
+</html>
