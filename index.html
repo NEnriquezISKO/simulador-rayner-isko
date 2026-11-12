@@ -58,7 +58,7 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
       user-select: none;
       touch-action: none;
-      background: #000;
+      background: #050811;
       border: 1px solid #1e293b;
     }
 
@@ -74,7 +74,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: filter 0.35s ease, transform 0.35s ease;
+      transition: filter 0.35s ease;
     }
 
     #layer-rayner {
@@ -82,7 +82,7 @@
       z-index: 2;
     }
 
-    /* Capa de Disfotopsias (Anillos difractivos + Glare realista en faros) */
+    /* Anillos difractivos y glare calibrados a los faros de la escena nocturna */
     .halo-overlay {
       position: absolute;
       inset: 0;
@@ -91,42 +91,33 @@
       transition: opacity 0.35s ease;
       mix-blend-mode: screen;
       background:
-        /* Faro izquierdo con anillos difractivos */
-        radial-gradient(circle at 28% 60%,
-          rgba(255,255,255,0.9) 0%,
-          rgba(255,240,200,0.45) 3%,
-          rgba(255,210,130,0.12) 6%,
-          rgba(255,230,180,0.35) 7.5%,
-          rgba(255,200,100,0.08) 9.5%,
-          rgba(255,220,160,0.28) 11%,
-          rgba(255,180,80,0.05) 13.5%,
-          rgba(255,210,140,0.18) 15%,
-          transparent 21%),
-        /* Faro derecho con anillos difractivos */
-        radial-gradient(circle at 42% 60%,
-          rgba(255,255,255,0.9) 0%,
-          rgba(255,240,200,0.45) 3%,
-          rgba(255,210,130,0.12) 6%,
-          rgba(255,230,180,0.35) 7.5%,
-          rgba(255,200,100,0.08) 9.5%,
-          rgba(255,220,160,0.28) 11%,
-          rgba(255,180,80,0.05) 13.5%,
-          rgba(255,210,140,0.18) 15%,
-          transparent 21%),
-        /* Luminarias de autopista */
-        radial-gradient(circle at 66% 36%,
-          rgba(255,245,210,0.75) 0%,
-          rgba(255,210,130,0.3) 4%,
-          rgba(255,220,150,0.22) 7%,
-          transparent 13%),
-        radial-gradient(circle at 78% 43%,
-          rgba(255,245,210,0.65) 0%,
-          rgba(255,210,130,0.25) 3.5%,
-          rgba(255,220,150,0.18) 6%,
-          transparent 11%);
+        /* Faro izquierdo auto que viene de frente */
+        radial-gradient(circle at 33% 63%,
+          rgba(255,255,255,0.95) 0%,
+          rgba(255,245,210,0.5) 2.5%,
+          rgba(255,210,130,0.12) 5%,
+          rgba(255,235,190,0.4) 6.5%,
+          rgba(255,200,100,0.08) 8.5%,
+          rgba(255,220,160,0.32) 10%,
+          rgba(255,180,80,0.05) 12.5%,
+          rgba(255,210,140,0.2) 14%,
+          transparent 19%),
+        /* Faro derecho auto que viene de frente */
+        radial-gradient(circle at 43% 63%,
+          rgba(255,255,255,0.95) 0%,
+          rgba(255,245,210,0.5) 2.5%,
+          rgba(255,210,130,0.12) 5%,
+          rgba(255,235,190,0.4) 6.5%,
+          rgba(255,200,100,0.08) 8.5%,
+          rgba(255,220,160,0.32) 10%,
+          rgba(255,180,80,0.05) 12.5%,
+          rgba(255,210,140,0.2) 14%,
+          transparent 19%),
+        /* Luminarias viales */
+        radial-gradient(circle at 22% 28%, rgba(255,240,190,0.7) 0%, rgba(255,210,130,0.25) 4%, transparent 11%),
+        radial-gradient(circle at 78% 28%, rgba(255,240,190,0.7) 0%, rgba(255,210,130,0.25) 4%, transparent 11%);
     }
 
-    /* Halo residual mínimo de referencia para Galaxy (óptica no difractiva) */
     .halo-rayner {
       position: absolute;
       inset: 0;
@@ -135,8 +126,8 @@
       transition: opacity 0.35s ease;
       mix-blend-mode: screen;
       background:
-        radial-gradient(circle at 28% 60%, rgba(255,255,255,0.35) 0%, rgba(255,240,210,0.08) 4%, transparent 9%),
-        radial-gradient(circle at 42% 60%, rgba(255,255,255,0.35) 0%, rgba(255,240,210,0.08) 4%, transparent 9%);
+        radial-gradient(circle at 33% 63%, rgba(255,255,255,0.3) 0%, rgba(255,240,210,0.06) 3.5%, transparent 8%),
+        radial-gradient(circle at 43% 63%, rgba(255,255,255,0.3) 0%, rgba(255,240,210,0.06) 3.5%, transparent 8%);
     }
 
     .badge {
@@ -249,13 +240,13 @@
 
     <!-- Capa Derecha: Competencia -->
     <div class="sim-layer" id="layer-comp">
-      <img id="img-comp" src="" alt="Escena Competencia">
+      <img id="img-comp" alt="Escena Competencia">
       <div class="halo-overlay" id="halo-comp"></div>
     </div>
 
     <!-- Capa Izquierda: Rayner -->
     <div class="sim-layer" id="layer-rayner">
-      <img id="img-rayner" src="" alt="Escena Rayner">
+      <img id="img-rayner" alt="Escena Rayner">
       <div class="halo-rayner" id="halo-rayner"></div>
     </div>
 
@@ -295,17 +286,254 @@
     lens: 'panoptix'
   };
 
-  // Escenas reales específicas para cada distancia e iluminación
-  const sceneImages = {
-    night_drive: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1400&q=85',
-    afternoon_pc: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=85',
-    afternoon_book: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1400&q=85'
-  };
+  // Generador de escenas ópticas de alta resolución (100% offline, nunca falla)
+  function generateSceneImages() {
+    const W = 1280, H = 720;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
 
-  // Perfiles ópticos calibrados con diferencias visuales claras
+    // 1. ESCENA CONDUCCIÓN NOCTURNA
+    let sky = ctx.createLinearGradient(0, 0, 0, H * 0.55);
+    sky.addColorStop(0, '#040711');
+    sky.addColorStop(1, '#0f1b33');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H * 0.55);
+
+    // Luna y estrellas sutiles
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    for (let i = 0; i < 40; i++) {
+      ctx.fillRect((i * 197) % W, (i * 83) % (H * 0.35), 2, 2);
+    }
+
+    // Asfalto
+    ctx.fillStyle = '#111622';
+    ctx.fillRect(0, H * 0.55, W, H * 0.45);
+
+    // Carretera en perspectiva
+    ctx.fillStyle = '#1b2232';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.42, H * 0.55);
+    ctx.lineTo(W * 0.58, H * 0.55);
+    ctx.lineTo(W * 0.95, H);
+    ctx.lineTo(W * 0.05, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Líneas viales
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 5;
+    ctx.setLineDash([35, 30]);
+    ctx.beginPath();
+    ctx.moveTo(W * 0.5, H * 0.56);
+    ctx.lineTo(W * 0.5, H);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Cartel vial reflectorizante a la derecha (prueba de nitidez lejana)
+    ctx.fillStyle = '#065f46';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.fillRect(W * 0.72, H * 0.36, 230, 95);
+    ctx.strokeRect(W * 0.72, H * 0.36, 230, 95);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('RUTA 9  NORTE', W * 0.735, H * 0.415);
+    ctx.font = '18px sans-serif';
+    ctx.fillText('SALIDA 400 m  ↗', W * 0.735, H * 0.46);
+
+    // Postes de luz autopista
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(W * 0.18, H * 0.55); ctx.lineTo(W * 0.18, H * 0.28); ctx.lineTo(W * 0.22, H * 0.28); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W * 0.82, H * 0.55); ctx.lineTo(W * 0.82, H * 0.28); ctx.lineTo(W * 0.78, H * 0.28); ctx.stroke();
+
+    // Luminarias
+    [ [W * 0.22, H * 0.28], [W * 0.78, H * 0.28] ].forEach(([lx, ly]) => {
+      let g = ctx.createRadialGradient(lx, ly, 2, lx, ly, 45);
+      g.addColorStop(0, '#fffbeb');
+      g.addColorStop(0.3, 'rgba(253, 224, 71, 0.5)');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(lx, ly, 45, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Auto viniendo de frente (carril izquierdo, X=33% y 43%, Y=63%)
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(W * 0.30, H * 0.56, W * 0.16, H * 0.11);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(W * 0.32, H * 0.52, W * 0.12, H * 0.05);
+
+    // Faros delanteros intensos
+    [ [W * 0.33, H * 0.63], [W * 0.43, H * 0.63] ].forEach(([fx, fy]) => {
+      let fg = ctx.createRadialGradient(fx, fy, 3, fx, fy, 55);
+      fg.addColorStop(0, '#ffffff');
+      fg.addColorStop(0.25, 'rgba(255, 250, 220, 0.8)');
+      fg.addColorStop(1, 'transparent');
+      ctx.fillStyle = fg;
+      ctx.beginPath(); ctx.arc(fx, fy, 55, 0, Math.PI * 2); ctx.fill();
+    });
+
+    const nightData = canvas.toDataURL('image/jpeg', 0.92);
+
+    // 2. ESCENA TARDE: COMPUTADORA (INTERMEDIA 60 cm)
+    let roomBg = ctx.createLinearGradient(0, 0, W, H);
+    roomBg.addColorStop(0, '#cbd5e1');
+    roomBg.addColorStop(1, '#94a3b8');
+    ctx.fillStyle = roomBg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Ventana con luz cálida de tarde
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(W * 0.06, H * 0.08, W * 0.25, H * 0.45);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(W * 0.06, H * 0.08, W * 0.25, H * 0.45);
+
+    // Escritorio madera
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(0, H * 0.72, W, H * 0.28);
+
+    // Marco Laptop
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(W * 0.24, H * 0.14, W * 0.52, H * 0.56);
+    // Pantalla blanca
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(W * 0.26, H * 0.17, W * 0.48, H * 0.49);
+
+    // Barra superior app médica en pantalla
+    ctx.fillStyle = '#005eb8';
+    ctx.fillRect(W * 0.26, H * 0.17, W * 0.48, H * 0.06);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText('HISTORIA CLÍNICA OFTALMOLÓGICA — CONTROL POST-OP', W * 0.28, H * 0.21);
+
+    // Texto e indicadores en pantalla (prueba de visión intermedia)
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('Agudeza Visual Intermedia (60 cm):  20/20  (0.0 logMAR)', W * 0.28, H * 0.29);
+
+    ctx.fillStyle = '#334155';
+    ctx.font = '17px sans-serif';
+    const pcLines = [
+      '• Sensibilidad al contraste fotópica y mesópica conservada.',
+      '• Sin anillos difractivos ni escalones de transición óptica.',
+      '• Lectura cómoda de monitores, tabletas y tablero vehicular.',
+      '• Curva de desenfoque continua de lejos a cerca.'
+    ];
+    pcLines.forEach((line, idx) => {
+      ctx.fillText(line, W * 0.28, H * 0.35 + idx * 34);
+    });
+
+    // Gráfico de barras en pantalla
+    const bars = [95, 92, 90, 88];
+    bars.forEach((val, idx) => {
+      ctx.fillStyle = idx === 0 ? '#005eb8' : '#38bdf8';
+      ctx.fillRect(W * 0.29 + idx * 110, H * 0.62 - val, 65, val);
+    });
+
+    // Base teclado
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.24, H * 0.70);
+    ctx.lineTo(W * 0.76, H * 0.70);
+    ctx.lineTo(W * 0.82, H * 0.76);
+    ctx.lineTo(W * 0.18, H * 0.76);
+    ctx.closePath();
+    ctx.fill();
+
+    const pcData = canvas.toDataURL('image/jpeg', 0.92);
+
+    // 3. ESCENA TARDE: LECTURA DE LIBRO (CERCA 35-40 cm)
+    let warmBg = ctx.createLinearGradient(0, 0, W, H);
+    warmBg.addColorStop(0, '#fde68a');
+    warmBg.addColorStop(1, '#d97706');
+    ctx.fillStyle = warmBg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Mesa de café
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(0, H * 0.15, W, H * 0.85);
+
+    // Taza de café a la derecha
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath(); ctx.arc(W * 0.87, H * 0.30, 52, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath(); ctx.arc(W * 0.87, H * 0.30, 42, 0, Math.PI * 2); ctx.fill();
+
+    // Libro abierto en primer plano
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(W * 0.16, H * 0.14, W * 0.62, H * 0.76);
+
+    // Página izquierda
+    ctx.fillStyle = '#fffbeb';
+    ctx.fillRect(W * 0.18, H * 0.16, W * 0.285, H * 0.72);
+    // Página derecha
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(W * 0.47, H * 0.16, W * 0.29, H * 0.72);
+
+    // Texto impreso nítido (prueba real de lectura cercana J1 / J2)
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 21px Georgia, serif';
+    ctx.fillText('Capítulo IV — Óptica Espiral', W * 0.20, H * 0.23);
+
+    ctx.font = '16px Georgia, serif';
+    const leftText = [
+      'La luz incidente atraviesa una superficie',
+      'continua diseñada para distribuir el foco',
+      'sin interrupciones abruptas ni pérdida',
+      'de energía lumínica en cada distancia.',
+      '',
+      'Al eliminar los escalones difractivos,',
+      'el paciente logra leer letra impresa de',
+      'tamaño reducido (Jaeger 1) con total',
+      'naturalidad bajo iluminación de tarde,',
+      'manteniendo la nitidez y el contraste',
+      'en todo el rango visual cercano.'
+    ];
+    leftText.forEach((t, i) => ctx.fillText(t, W * 0.20, H * 0.29 + i * 32));
+
+    ctx.font = 'bold 18px Georgia, serif';
+    ctx.fillText('Prueba de Lectura Cercana (35 cm)', W * 0.49, H * 0.23);
+
+    ctx.font = '14px Georgia, serif';
+    const rightText = [
+      '• Tamaño J3: Visión cómoda de periódicos y revistas.',
+      '• Tamaño J2: Lectura fluida de libros y etiquetas.',
+      '• Tamaño J1: Letra chica de prospectos médicos.',
+      '',
+      'Con lentes monofocales o EDOF estándar,',
+      'esta página requiere el uso de gafas de',
+      'lectura (+2.00 D a +2.50 D) para enfocar',
+      'con claridad los caracteres pequeños.',
+      '',
+      'Deslizá la barra central hacia ambos lados',
+      'para comparar la nitidez de cada lente.'
+    ];
+    rightText.forEach((t, i) => ctx.fillText(t, W * 0.49, H * 0.29 + i * 32));
+
+    const bookData = canvas.toDataURL('image/jpeg', 0.92);
+
+    return {
+      night_drive: nightData,
+      afternoon_pc: pcData,
+      afternoon_book: bookData
+    };
+  }
+
+  const sceneImages = generateSceneImages();
+
+  // Perfiles ópticos calibrados
   const lensProfiles = {
     panoptix: {
       badge: 'Alcon Clareon PanOptix Pro (Trifocal Difractivo)',
       effects: {
-        night_drive: { blur: 0.6, contrast: 86, brightness: 94, halo: 0.85 },
-        afternoon_pc: { blur: 1.35, contrast: 92, brightness: 97
+        night_drive: { blur: 0.7, contrast: 86, brightness: 94, halo: 0.85 },
+        afternoon_pc: { blur: 1.5, contrast: 92, brightness: 97, halo: 0 },
+        afternoon_book: { blur: 0.4, contrast: 92, brightness: 97, halo: 0 }
+      },
+      notes: {
+        night_drive: '<strong>Conducción Nocturna (PanOptix Pro vs. Galaxy):</strong> Los anillos difractivos de PanOptix Pro generan halos concéntricos y glare alrededor de los faros, además de una leve reducción en sensibilidad al contraste. La óptica espiral continua de Galaxy minimiza estas disfotopsias.',
+        afternoon_pc: '<strong>Computadora / Intermedia (PanOptix Pro vs. Galaxy):</strong> En la curva de desenfoque comparativa, PanOptix presenta una caída ("valle") en distancia intermedia (-1.0 D, 0.11 logMAR), lo que suaviza el texto en pantalla frente a la meseta continua de RayOne Galaxy.',
+        afternoon_book: '<strong>Lectura de Libro / Cerca (PanOptix Pro
